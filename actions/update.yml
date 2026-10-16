@@ -22,7 +22,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Fetch FRED → docs/data.json
+      - name: Fetch FRED → docs JSON
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_fred.py
@@ -31,11 +31,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data.json
+          git add docs/data.json docs/public_probs.json
           if git diff --staged --quiet; then
             echo "No data change"
           else
             git commit -m "Auto: FRED refresh $(date -u '+%Y-%m-%d')"
-            git pull --rebase origin main
+            git pull --rebase --autostash origin main
             git push
           fi
