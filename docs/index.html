@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>美國領先指標 · US Leading Indicators</title>
+<meta name="description" content="HiuLung cycle-assistant：FRED 自動更新 + 手動領先指標。規則式偏牛／偏熊／過渡。只供參考，非投資建議。" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js" defer></script>
+<style>
+  :root {
+    --bg: #0f1419;
+    --card: #1a222d;
+    --card2: #222c38;
+    --border: #2e3a4a;
+    --text: #e8eef5;
+    --muted: #8b9aab;
+    --bull: #2ecc71;
+    --bull-bg: rgba(46,204,113,.12);
+    --bear: #e74c3c;
+    --bear-bg: rgba(231,76,60,.12);
+    --neutral: #f1c40f;
+    --neutral-bg: rgba(241,196,15,.12);
+    --accent: #5dade2;
+    --radius: 12px;
+    --font: "Segoe UI", system-ui, -apple-system, "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font); background: var(--bg); color: var(--text);
+    line-height: 1.5; min-height: 100vh;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  header h1 { font-size: 1.45rem; margin: 0 0 .25rem; font-weight: 700; }
+  header .sub { color: var(--muted); font-size: .9rem; margin: 0 0 1rem; }
+  .disclaimer {
+    background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: .75rem 1rem; font-size: .85rem; color: var(--muted); margin-bottom: 1.25rem;
+  }
+  .badge-panel {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.1rem 1.25rem; margin-bottom: 1.25rem;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    font-size: 1.5rem; font-weight: 700; padding: .45rem 1rem;
+    border-radius: 999px; margin: .4rem 0 .75rem;
+  }
+  .badge.bull { background: var(--bull-bg); color: var(--bull); }
+  .badge.bear { background: var(--bear-bg); color: var(--bear); }
+  .badge.neutral { background: var(--neutral-bg); color: var(--neutral); }
+  .badge-meta { color: var(--muted); font-size: .85rem; }
+  .votes { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .75rem; }
+  .vote {
+    font-size: .75rem; padding: .25rem .55rem; border-radius: 6px;
+    background: var(--card2); border: 1px solid var(--border); color: var(--muted);
+  }
+  .vote.up { border-color: rgba(46,204,113,.4); color: var(--bull); }
+  .vote.down { border-color: rgba(231,76,60,.4); color: var(--bear); }
+  h2 { font-size: 1.05rem; margin: 1.5rem 0 .75rem; font-weight: 600; }
+  .grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .85rem;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: .9rem 1rem; display: flex; flex-direction: column; gap: .35rem;
+  }
+  .card .name { font-size: .8rem; color: var(--muted); }
+  .card .val { font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  .card .meta { font-size: .75rem; color: var(--muted); }
+  .card .trend { font-size: .8rem; }
+  .spark { height: 48px; margin-top: .25rem; }
+  .manual-tag {
+    display: inline-block; font-size: .65rem; text-transform: uppercase; letter-spacing: .04em;
+    padding: .15rem .4rem; border-radius: 4px; background: var(--card2); color: var(--accent);
+    border: 1px solid var(--border);
+  }
+  footer {
+    margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);
+    font-size: .8rem; color: var(--muted);
+  }
+  .err { color: var(--bear); font-size: .85rem; margin-top: .5rem; }
+  .loading { color: var(--muted); padding: 2rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>美國領先指標 · US Leading Indicators</h1>
+    <p class="sub">HiuLung cycle-assistant · FRED 自動 + 手動領先指標 · 規則式狀態（非 ML）</p>
+  </header>
+
+  <div class="disclaimer">
+    <strong>免責聲明 / Disclaimer：</strong>只供參考，非投資建議。For reference only — not investment advice.
+    狀態徽章為透明規則投票，非衰退機率模型。
+  </div>
+
+  <section class="badge-panel" id="badge-panel">
+    <div class="badge-meta">結論區 · Rule-based status</div>
+    <div class="loading" id="loading">載入 data.json…</div>
+  </section>
+
+  <h2>自動（FRED）</h2>
+  <div class="grid" id="fred-grid"></div>
+
+  <h2>手動更新 <span class="manual-tag">manual.json</span></h2>
+  <div class="grid" id="manual-grid"></div>
+
+  <footer>
+    <p>資料來源：<a href="https://fred.stlouisfed.org/" rel="noopener">FRED</a>；手動欄位見 Conference Board / ISM 公開新聞稿。</p>
+    <p>架構靈感（非複製模型權重／衰退%）：
+      <a href="https://github.com/ianperaltahirujo/recession-probability-dashboard" rel="noopener">recession-probability-dashboard</a>（Actions→Pages+FRED）、
+      <a href="https://github.com/ribromeu/US-Yield-Curve-Macro-Dashboard" rel="noopener">US-Yield-Curve-Macro-Dashboard</a>（MIT，曲線+HY OAS）。
+    </p>
+    <p>Repo：<a href="https://github.com/hiulungchu-art/us-leading-indicators">hiulungchu-art/us-leading-indicators</a>
+      · 最後更新：<span id="updated">—</span></p>
+  </footer>
+</div>
+<script>
+(function () {
+  const toneClass = { bull: "bull", bear: "bear", neutral: "neutral" };
+
+  function voteClass(v) {
+    if (v > 0) return "up";
+    if (v < 0) return "down";
+    return "";
+  }
+
+  function renderSpark(canvas, history, color) {
+    if (!window.Chart || !history || history.length < 2) return;
+    const ctx = canvas.getContext("2d");
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: history.map(h => h.d),
+        datasets: [{
+          data: history.map(h => h.v),
+          borderColor: color || "#5dade2",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          tension: 0.25,
+          fill: false,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: true, mode: "index", intersect: false } },
+        scales: { x: { display: false }, y: { display: false } },
+        animation: false,
+      },
+    });
+  }
+
+  function cardFred(s) {
+    const el = document.createElement("article");
+    el.className = "card";
+    el.innerHTML =
+      '<div class="name">' + s.label_zh + ' <span style="opacity:.7">· ' + s.label_en + "</span></div>" +
+      '<div class="val">' + s.value_fmt + "</div>" +
+      '<div class="meta">' + s.date + " · " + (s.unit || "") +
+      ' · <a href="' + s.fred_url + '" rel="noopener">FRED</a></div>' +
+      '<div class="trend">' + (s.trend || "") + "</div>" +
+      '<div class="spark"><canvas></canvas></div>';
+    const canvas = el.querySelector("canvas");
+    requestAnimationFrame(() => renderSpark(canvas, s.history));
+    return el;
+  }
+
+  function cardManual(s) {
+    const el = document.createElement("article");
+    el.className = "card";
+    const mom = s.mom_pct != null ? " · MoM " + s.mom_pct + "%" : "";
+    el.innerHTML =
+      '<div class="name">' + s.label_zh + ' <span class="manual-tag">手動</span></div>' +
+      '<div class="val">' + (s.value_fmt != null ? s.value_fmt : s.value) + "</div>" +
+      '<div class="meta">' + (s.date || "") + mom + " · " + (s.unit || "") +
+      (s.url ? ' · <a href="' + s.url + '" rel="noopener">來源</a>' : "") + "</div>" +
+      '<div class="trend">' + (s.trend || "") + "</div>";
+    return el;
+  }
+
+  function render(data) {
+    document.getElementById("loading").remove();
+    document.getElementById("updated").textContent = data.generated_at || "—";
+
+    const b = data.badge || {};
+    const panel = document.getElementById("badge-panel");
+    const tone = toneClass[b.tone] || "neutral";
+    const votesHtml = (b.votes || []).map(v =>
+      '<span class="vote ' + voteClass(v.vote) + '">' +
+      v.name + ": " + (v.vote > 0 ? "+" : "") + v.vote + " · " + v.detail +
+      "</span>"
+    ).join("");
+
+    panel.insertAdjacentHTML("beforeend",
+      '<div class="badge ' + tone + '">' + (b.status || "—") +
+      ' <span style="font-size:.85rem;font-weight:500;opacity:.85">/ ' + (b.status_en || "") + "</span></div>" +
+      '<div class="badge-meta">得分 ' + (b.score != null ? b.score : "—") +
+      " / " + (b.votes_cast || 0) + " 票 · " + (b.rule_summary_zh || "") + "</div>" +
+      '<div class="votes">' + votesHtml + "</div>"
+    );
+
+    const fg = document.getElementById("fred-grid");
+    const order = ["T10Y2Y","T10YFF","DFF","ICSA","IC4WSA","BAMLH0A0HYM2","PERMIT","HOUST","UMCSENT","SP500","UNRATE","PAYEMS"];
+    order.forEach(id => {
+      if (data.fred && data.fred[id]) fg.appendChild(cardFred(data.fred[id]));
+    });
+
+    const mg = document.getElementById("manual-grid");
+    const inds = (data.manual && data.manual.indicators) || {};
+    Object.keys(inds).forEach(k => mg.appendChild(cardManual(inds[k])));
+
+    if (data.errors && data.errors.length) {
+      panel.insertAdjacentHTML("beforeend",
+        '<p class="err">部分序列擷取失敗：' + data.errors.join("; ") + "</p>");
+    }
+  }
+
+  fetch("data.json?_=" + Date.now())
+    .then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(render)
+    .catch(err => {
+      const el = document.getElementById("loading");
+      if (el) el.textContent = "無法載入 data.json：" + err.message;
+    });
+})();
+</script>
+</body>
+</html>

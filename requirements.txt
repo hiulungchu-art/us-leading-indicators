@@ -1,0 +1,2 @@
+# Fetch script uses stdlib only (urllib + json).
+# No pip packages required for docs/data.json updates.

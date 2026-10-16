@@ -1,0 +1,56 @@
+{
+  "updated": "2026-10-16",
+  "notes_zh": "以下指標無免費 FRED 即時序列，請按月手動更新本檔。數值來自 2026-10-16 cycle snapshot（公開新聞稿／官網）。",
+  "notes_en": "Not on free FRED live series. Update this file monthly. Values from 2026-10-16 public snapshot.",
+  "indicators": {
+    "LEI": {
+      "label_zh": "Conference Board LEI",
+      "label_en": "Conference Board LEI",
+      "value": 99.5,
+      "value_fmt": "99.5",
+      "mom_pct": -0.1,
+      "unit": "2016=100",
+      "date": "2026-08",
+      "released": "2026-09-18",
+      "trend": "8月輕微回落 −0.1% MoM",
+      "source": "TCB press PDF Aug 2026 LEI",
+      "url": "https://www.conference-board.org/topics/us-leading-indicators"
+    },
+    "ISM_PMI": {
+      "label_zh": "ISM 製造業 PMI",
+      "label_en": "ISM Manufacturing PMI",
+      "value": 54.5,
+      "value_fmt": "54.5",
+      "unit": "index (50=擴張)",
+      "date": "2026-09",
+      "released": "2026-10-01",
+      "trend": "連續第9個月擴張；較8月 54.6 微跌",
+      "source": "ISM / PR Newswire",
+      "url": "https://www.ismworld.org/supply-management-news-and-reports/reports/ism-pmi-reports/"
+    },
+    "TCB_CONSUMER": {
+      "label_zh": "TCB 消費者信心",
+      "label_en": "TCB Consumer Confidence",
+      "value": 81.9,
+      "value_fmt": "81.9",
+      "unit": "index",
+      "date": "2026-09",
+      "released": "2026-09-29",
+      "trend": "急跌（前值 88.6）；預期分 63.6",
+      "source": "Conference Board",
+      "url": "https://www.conference-board.org/topics/consumer-confidence/"
+    },
+    "TCB_CEO": {
+      "label_zh": "TCB CEO 信心",
+      "label_en": "TCB CEO Confidence",
+      "value": 46,
+      "value_fmt": "46",
+      "unit": "index (50=中性)",
+      "date": "2026-Q4",
+      "released": "2026-10-15",
+      "trend": "由 Q3 的 52 跌至 46（淨負面）",
+      "source": "PR Newswire / Conference Board",
+      "url": "https://www.conference-board.org/"
+    }
+  }
+}
