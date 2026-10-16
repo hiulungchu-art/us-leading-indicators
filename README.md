@@ -81,6 +81,22 @@ Edit and commit when new releases drop (not free on live FRED):
 
 Pre-filled from a 2026-10-16 public snapshot. Next LEI release noted around 2026-10-22 (Sep data).
 
+## Historical reference (`docs/history_ref.json`)
+
+Long-run normals (mean / median / p10–p90, trailing ~10y when available) and crash-episode snapshots
+(1987, 2000–02, 2007–09, 2020) for key FRED series. Rendered on the Pages site under **參考**.
+
+Rebuild:
+
+```bash
+# CSV keyless preferred when reachable; else API key
+export FRED_API_KEY=your_key   # optional
+python3 scripts/build_history_ref.py
+# writes docs/history_ref.json
+```
+
+**Gaps:** FRED HY OAS (`BAMLH0A0HYM2`) keeps ~3y history (as of 2026); FRED `SP500` keeps ~10y. Older credit stress uses `BAA10Y`. No invented prints.
+
 ## Local refresh
 
 ```bash

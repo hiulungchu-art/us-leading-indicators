@@ -84,6 +84,43 @@
   }
   .err { color: var(--bear); font-size: .85rem; margin-top: .5rem; }
   .loading { color: var(--muted); padding: 2rem 0; }
+
+  /* 參考：歷史正常帶 / 股災前後 */
+  .ref-section { margin-top: .5rem; }
+  .ref-intro { color: var(--muted); font-size: .85rem; margin: 0 0 .85rem; max-width: 52rem; }
+  .ref-gaps {
+    background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: .65rem .9rem; font-size: .8rem; color: var(--muted); margin-bottom: 1rem;
+  }
+  .ref-gaps ul { margin: .35rem 0 0; padding-left: 1.1rem; }
+  .ref-table-wrap {
+    overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--card); margin-bottom: 1rem;
+  }
+  table.ref {
+    width: 100%; border-collapse: collapse; font-size: .8rem;
+    font-variant-numeric: tabular-nums;
+  }
+  table.ref th, table.ref td {
+    padding: .45rem .6rem; text-align: left; border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  table.ref th {
+    color: var(--muted); font-weight: 600; background: var(--card2);
+    position: sticky; top: 0;
+  }
+  table.ref td.num { font-family: var(--mono); text-align: right; }
+  table.ref td.muted { color: var(--muted); }
+  table.ref tr:last-child td { border-bottom: none; }
+  table.ref .sid { color: var(--accent); font-size: .72rem; }
+  .ep-block {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: .85rem 1rem; margin-bottom: .85rem;
+  }
+  .ep-block h3 { margin: 0 0 .25rem; font-size: .95rem; }
+  .ep-meta { color: var(--muted); font-size: .75rem; margin-bottom: .55rem; }
+  .ep-block .ref-table-wrap { margin-bottom: 0; border: none; }
+  .na { color: var(--muted); font-style: italic; }
 </style>
 </head>
 <body>
@@ -108,6 +145,23 @@
 
   <h2>手動更新 <span class="manual-tag">manual.json</span></h2>
   <div class="grid" id="manual-grid"></div>
+
+
+  <section class="ref-section" id="ref-section">
+    <h2>參考 · 歷史正常帶 vs 股災前後</h2>
+    <p class="ref-intro">
+      用 FRED 全樣本（及近 10 年，若可得）計 <strong>平均／中位／p10–p90</strong>，
+      再對照四次著名美股壓力期：約 6–12 個月前、壓力高峰、低位／谷底、約 6–12 個月後。
+      數值為目標日或之前最近一筆觀察值，<strong>唔會虛構</strong>。只供參考，非投資建議。
+    </p>
+    <div id="ref-gaps" class="ref-gaps" hidden></div>
+    <h2 style="font-size:.95rem;margin-top:.25rem">正常／歷史平均</h2>
+    <div class="ref-table-wrap" id="ref-normals-wrap">
+      <p class="loading" id="ref-loading">載入 history_ref.json…</p>
+    </div>
+    <h2 style="font-size:.95rem">股災／衰退前後快照</h2>
+    <div id="ref-episodes"></div>
+  </section>
 
   <footer>
     <p>資料來源：<a href="https://fred.stlouisfed.org/" rel="noopener">FRED</a>；手動欄位見 Conference Board / ISM 公開新聞稿。</p>
@@ -229,6 +283,108 @@
     .catch(err => {
       const el = document.getElementById("loading");
       if (el) el.textContent = "無法載入 data.json：" + err.message;
+    });
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function pointCell(p) {
+    if (!p || !p.available) {
+      const why = (p && p.reason) ? p.reason : "無資料";
+      const short = why.indexOf("not_started") >= 0 || why.indexOf("series_not") >= 0
+        ? "當時未有序列"
+        : (why.indexOf("stale") >= 0 ? "太舊／無近觀測" : "無資料");
+      return '<td class="na" title="' + esc(why) + '">' + short + "</td>";
+    }
+    return '<td class="num" title="觀測日 ' + esc(p.date) + '（錨點 ' + esc(p.target_date) + '）">' +
+      esc(p.value_fmt) + '<div class="meta" style="font-size:.65rem">' + esc(p.date) + "</div></td>";
+  }
+
+  function renderHistoryRef(ref) {
+    const load = document.getElementById("ref-loading");
+    if (load) load.remove();
+
+    const gaps = document.getElementById("ref-gaps");
+    if (ref.gaps_zh && ref.gaps_zh.length) {
+      gaps.hidden = false;
+      gaps.innerHTML = "<strong>資料缺口（FRED 授權／樣本）</strong><ul>" +
+        ref.gaps_zh.map(g => "<li>" + esc(g) + "</li>").join("") + "</ul>";
+    }
+
+    const order = ["T10Y2Y","T10YFF","ICSA","IC4WSA","BAMLH0A0HYM2","BAA10Y","UNRATE","UMCSENT","PERMIT","INDPRO","SP500"];
+    const normals = ref.normals || {};
+    let rows = "";
+    order.forEach(id => {
+      const n = normals[id];
+      if (!n) return;
+      const t10 = n.trailing_10y
+        ? esc(n.trailing_10y.mean_fmt) + " / " + esc(n.trailing_10y.median_fmt)
+        : "—";
+      rows += "<tr>" +
+        "<td>" + esc(n.label_zh) + '<div class="sid">' + esc(id) + "</div></td>" +
+        '<td class="num">' + esc(n.mean_fmt) + "</td>" +
+        '<td class="num">' + esc(n.median_fmt) + "</td>" +
+        '<td class="num">' + esc(n.p10_fmt) + " – " + esc(n.p90_fmt) + "</td>" +
+        '<td class="num">' + t10 + "</td>" +
+        '<td class="num">' + esc(n.latest.value_fmt) +
+        '<div class="meta" style="font-size:.65rem">' + esc(n.latest.date) + "</div></td>" +
+        '<td class="muted">' + esc(n.start) + " → " + esc(n.end) + "</td>" +
+        "</tr>";
+    });
+    document.getElementById("ref-normals-wrap").innerHTML =
+      '<table class="ref"><thead><tr>' +
+      "<th>序列</th><th>全樣本平均</th><th>中位</th><th>p10–p90</th><th>近10年平均／中位</th><th>最新</th><th>樣本期</th>" +
+      "</tr></thead><tbody>" + rows + "</tbody></table>" +
+      '<p class="badge-meta" style="padding:.5rem .75rem">來源：' + esc(ref.source || "FRED") +
+      " · 產生：" + esc(ref.generated_at || "") +
+      (ref.methodology_zh ? " · " + esc(ref.methodology_zh) : "") + "</p>";
+
+    const epRoot = document.getElementById("ref-episodes");
+    const showIds = ["T10Y2Y","BAA10Y","BAMLH0A0HYM2","ICSA","UNRATE","UMCSENT","INDPRO","PERMIT","SP500"];
+    (ref.episodes || []).forEach(ep => {
+      const nber = ep.nber_recession
+        ? "NBER " + ep.nber_recession.start + " → " + ep.nber_recession.end
+        : "非 NBER 衰退（股市急挫）";
+      const a = ep.anchors || {};
+      let erows = "";
+      showIds.forEach(id => {
+        const s = (ep.series || {})[id];
+        if (!s) return;
+        const pts = s.points || {};
+        erows += "<tr><td>" + esc(s.label_zh || id) +
+          '<div class="sid">' + esc(id) + (s.unit ? " · " + esc(s.unit) : "") + "</div></td>" +
+          pointCell(pts.before_6_12m) +
+          pointCell(pts.at_peak_stress) +
+          pointCell(pts.at_trough) +
+          pointCell(pts.after_6_12m) +
+          "</tr>";
+      });
+      const block = document.createElement("div");
+      block.className = "ep-block";
+      block.innerHTML =
+        "<h3>" + esc(ep.name_zh) +
+        ' <span style="font-weight:500;opacity:.75;font-size:.85rem">/ ' + esc(ep.name_en) + "</span></h3>" +
+        '<div class="ep-meta">' + esc(nber) + " · 錨點 " +
+        esc(a.before) + " → " + esc(a.peak_stress) + " → " + esc(a.trough) + " → " + esc(a.after) +
+        (ep.notes_zh ? " · " + esc(ep.notes_zh) : "") + "</div>" +
+        '<div class="ref-table-wrap"><table class="ref"><thead><tr>' +
+        "<th>指標</th><th>約6–12個月前</th><th>壓力高峰</th><th>低位／谷</th><th>約6–12個月後</th>" +
+        "</tr></thead><tbody>" + erows + "</tbody></table></div>";
+      epRoot.appendChild(block);
+    });
+  }
+
+  fetch("history_ref.json?_=" + Date.now())
+    .then(r => {
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .then(renderHistoryRef)
+    .catch(err => {
+      const el = document.getElementById("ref-loading");
+      if (el) el.textContent = "無法載入 history_ref.json：" + err.message;
     });
 })();
 </script>

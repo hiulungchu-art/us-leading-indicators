@@ -1,0 +1,2670 @@
+{
+  "generated_at": "2026-10-16 12:43 HKT",
+  "generated_at_utc": "2026-10-16T04:43:30Z",
+  "source": "FRED",
+  "source_note": "Federal Reserve Bank of St. Louis FRED. Values are observed series levels (nearest observation on/before each anchor). Not interpolated inventively.",
+  "source_urls": {
+    "fred": "https://fred.stlouisfed.org/",
+    "nber_cycles": "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"
+  },
+  "fetch_mode": "fred_api",
+  "fetch_modes_by_series": {
+    "T10Y2Y": "fred_api",
+    "T10YFF": "fred_api",
+    "ICSA": "fred_api",
+    "IC4WSA": "fred_api",
+    "BAMLH0A0HYM2": "fred_api",
+    "BAA10Y": "fred_api",
+    "SP500": "fred_api",
+    "UNRATE": "fred_api",
+    "UMCSENT": "fred_api",
+    "PERMIT": "fred_api",
+    "INDPRO": "fred_api"
+  },
+  "methodology_zh": "正常帶：全樣本 mean / median / p10–p90（及可得時近 10 年）。股災錨點：約 6–12 個月前、壓力高峰、低位／最差月、約 6–12 個月後；取目標日或之前最近一筆 FRED 觀察值。NBER 衰退日期見 source_urls。",
+  "normals": {
+    "T10Y2Y": {
+      "id": "T10Y2Y",
+      "label_zh": "2s10s 孳息曲線",
+      "label_en": "2s10s",
+      "unit": "pp",
+      "fred_url": "https://fred.stlouisfed.org/series/T10Y2Y",
+      "start": "1976-06-01",
+      "end": "2026-10-15",
+      "n_obs": 12590,
+      "mean": 0.844275,
+      "median": 0.77,
+      "stdev": 0.911928,
+      "p10": -0.26,
+      "p25": 0.19,
+      "p75": 1.47,
+      "p90": 2.19,
+      "min": -2.41,
+      "max": 2.91,
+      "mean_fmt": "0.84",
+      "median_fmt": "0.77",
+      "p10_fmt": "-0.26",
+      "p90_fmt": "2.19",
+      "latest": {
+        "date": "2026-10-15",
+        "value": 0.33,
+        "value_fmt": "0.33"
+      },
+      "trailing_10y": {
+        "n_obs": 2502,
+        "start_approx": "2016-10-12",
+        "mean": 0.346599,
+        "median": 0.39,
+        "p10": -0.449,
+        "p90": 1.099,
+        "mean_fmt": "0.35",
+        "median_fmt": "0.39"
+      }
+    },
+    "T10YFF": {
+      "id": "T10YFF",
+      "label_zh": "10年−聯邦基金",
+      "label_en": "10y−FF",
+      "unit": "pp",
+      "fred_url": "https://fred.stlouisfed.org/series/T10YFF",
+      "start": "1962-01-02",
+      "end": "2026-10-14",
+      "n_obs": 16179,
+      "mean": 0.963152,
+      "median": 1.11,
+      "stdev": 1.641141,
+      "p10": -0.92,
+      "p25": 0.08,
+      "p75": 2.13,
+      "p90": 2.88,
+      "min": -9.57,
+      "max": 4.92,
+      "mean_fmt": "0.96",
+      "median_fmt": "1.11",
+      "p10_fmt": "-0.92",
+      "p90_fmt": "2.88",
+      "latest": {
+        "date": "2026-10-14",
+        "value": 1.31,
+        "value_fmt": "1.31"
+      },
+      "trailing_10y": {
+        "n_obs": 2502,
+        "start_approx": "2016-10-11",
+        "mean": 0.466383,
+        "median": 0.61,
+        "p10": -1.05,
+        "p90": 1.56,
+        "mean_fmt": "0.47",
+        "median_fmt": "0.61"
+      }
+    },
+    "ICSA": {
+      "id": "ICSA",
+      "label_zh": "初領失業救濟",
+      "label_en": "Initial claims",
+      "unit": "claims",
+      "fred_url": "https://fred.stlouisfed.org/series/ICSA",
+      "start": "1967-01-07",
+      "end": "2026-10-10",
+      "n_obs": 3119,
+      "mean": 358962.808592,
+      "median": 338000.0,
+      "stdev": 238277.692948,
+      "p10": 218000.0,
+      "p25": 276000.0,
+      "p75": 395000.0,
+      "p90": 467000.0,
+      "min": 162000.0,
+      "max": 6137000.0,
+      "mean_fmt": "358,963",
+      "median_fmt": "338,000",
+      "p10_fmt": "218,000",
+      "p90_fmt": "467,000",
+      "latest": {
+        "date": "2026-10-10",
+        "value": 199000.0,
+        "value_fmt": "199,000"
+      },
+      "trailing_10y": {
+        "n_obs": 523,
+        "start_approx": "2016-10-07",
+        "mean": 360015.296367,
+        "median": 225000.0,
+        "p10": 207000.0,
+        "p90": 655400.0,
+        "mean_fmt": "360,015",
+        "median_fmt": "225,000"
+      }
+    },
+    "IC4WSA": {
+      "id": "IC4WSA",
+      "label_zh": "初領4週平均",
+      "label_en": "Claims 4w avg",
+      "unit": "claims",
+      "fred_url": "https://fred.stlouisfed.org/series/IC4WSA",
+      "start": "1967-01-28",
+      "end": "2026-10-10",
+      "n_obs": 3116,
+      "mean": 359124.117458,
+      "median": 338000.0,
+      "stdev": 225795.365308,
+      "p10": 219250.0,
+      "p25": 277500.0,
+      "p75": 395750.0,
+      "p90": 467125.0,
+      "min": 179000.0,
+      "max": 5288250.0,
+      "mean_fmt": "359,124",
+      "median_fmt": "338,000",
+      "p10_fmt": "219,250",
+      "p90_fmt": "467,125",
+      "latest": {
+        "date": "2026-10-10",
+        "value": 198500.0,
+        "value_fmt": "198,500"
+      },
+      "trailing_10y": {
+        "n_obs": 523,
+        "start_approx": "2016-10-07",
+        "mean": 360151.529637,
+        "median": 224500.0,
+        "p10": 208000.0,
+        "p90": 678450.0,
+        "mean_fmt": "360,152",
+        "median_fmt": "224,500"
+      }
+    },
+    "BAMLH0A0HYM2": {
+      "id": "BAMLH0A0HYM2",
+      "label_zh": "美高收益OAS",
+      "label_en": "HY OAS",
+      "unit": "%",
+      "fred_url": "https://fred.stlouisfed.org/series/BAMLH0A0HYM2",
+      "start": "2023-10-16",
+      "end": "2026-10-14",
+      "n_obs": 786,
+      "mean": 3.089491,
+      "median": 3.02,
+      "stdev": 0.38919,
+      "p10": 2.69,
+      "p25": 2.8,
+      "p75": 3.23,
+      "p90": 3.575,
+      "min": 2.59,
+      "max": 4.61,
+      "mean_fmt": "3.09",
+      "median_fmt": "3.02",
+      "p10_fmt": "2.69",
+      "p90_fmt": "3.58",
+      "latest": {
+        "date": "2026-10-14",
+        "value": 3.25,
+        "value_fmt": "3.25"
+      },
+      "trailing_10y": {
+        "n_obs": 786,
+        "start_approx": "2016-10-11",
+        "mean": 3.089491,
+        "median": 3.02,
+        "p10": 2.69,
+        "p90": 3.575,
+        "mean_fmt": "3.09",
+        "median_fmt": "3.02"
+      }
+    },
+    "BAA10Y": {
+      "id": "BAA10Y",
+      "label_zh": "BAA−10年國債利差",
+      "label_en": "Moody's BAA−10y",
+      "unit": "pp",
+      "fred_url": "https://fred.stlouisfed.org/series/BAA10Y",
+      "start": "1986-01-02",
+      "end": "2026-10-14",
+      "n_obs": 10196,
+      "mean": 2.263923,
+      "median": 2.13,
+      "stdev": 0.691625,
+      "p10": 1.56,
+      "p25": 1.74,
+      "p75": 2.66,
+      "p90": 3.11,
+      "min": 1.16,
+      "max": 6.16,
+      "mean_fmt": "2.26",
+      "median_fmt": "2.13",
+      "p10_fmt": "1.56",
+      "p90_fmt": "3.11",
+      "latest": {
+        "date": "2026-10-14",
+        "value": 1.44,
+        "value_fmt": "1.44"
+      },
+      "trailing_10y": {
+        "n_obs": 2497,
+        "start_approx": "2016-10-11",
+        "mean": 1.999768,
+        "median": 1.94,
+        "p10": 1.56,
+        "p90": 2.394,
+        "mean_fmt": "2.00",
+        "median_fmt": "1.94"
+      }
+    },
+    "SP500": {
+      "id": "SP500",
+      "label_zh": "標普500",
+      "label_en": "S&P 500",
+      "unit": "index",
+      "fred_url": "https://fred.stlouisfed.org/series/SP500",
+      "start": "2016-10-17",
+      "end": "2026-10-15",
+      "n_obs": 2513,
+      "mean": 4181.030903,
+      "median": 3982.24,
+      "stdev": 1500.000462,
+      "p10": 2502.55,
+      "p25": 2852.5,
+      "p75": 5158.2,
+      "p90": 6628.196,
+      "min": 2085.18,
+      "max": 7818.93,
+      "mean_fmt": "4,181.0",
+      "median_fmt": "3,982.2",
+      "p10_fmt": "2,502.5",
+      "p90_fmt": "6,628.2",
+      "latest": {
+        "date": "2026-10-15",
+        "value": 7744.06,
+        "value_fmt": "7,744.1"
+      },
+      "trailing_10y": {
+        "n_obs": 2513,
+        "start_approx": "2016-10-12",
+        "mean": 4181.030903,
+        "median": 3982.24,
+        "p10": 2502.55,
+        "p90": 6628.196,
+        "mean_fmt": "4,181.0",
+        "median_fmt": "3,982.2"
+      },
+      "returns": {
+        "n_daily_returns": 2512,
+        "mean_daily_pct": 0.058,
+        "median_daily_pct": 0.0768,
+        "p05_daily_pct": -1.6532,
+        "p95_daily_pct": 1.5607,
+        "approx_ann_mean_pct": 14.61,
+        "note_zh": "FRED SP500 日序列約由 2015 起；回報僅就可得樣本。"
+      }
+    },
+    "UNRATE": {
+      "id": "UNRATE",
+      "label_zh": "失業率",
+      "label_en": "Unemployment",
+      "unit": "%",
+      "fred_url": "https://fred.stlouisfed.org/series/UNRATE",
+      "start": "1948-01-01",
+      "end": "2026-09-01",
+      "n_obs": 944,
+      "mean": 5.652966,
+      "median": 5.45,
+      "stdev": 1.702631,
+      "p10": 3.7,
+      "p25": 4.3,
+      "p75": 6.7,
+      "p90": 7.8,
+      "min": 2.5,
+      "max": 14.8,
+      "mean_fmt": "5.65",
+      "median_fmt": "5.45",
+      "p10_fmt": "3.70",
+      "p90_fmt": "7.80",
+      "latest": {
+        "date": "2026-09-01",
+        "value": 4.2,
+        "value_fmt": "4.20"
+      },
+      "trailing_10y": {
+        "n_obs": 120,
+        "start_approx": "2016-08-29",
+        "mean": 4.5375,
+        "median": 4.1,
+        "p10": 3.6,
+        "p90": 6.1,
+        "mean_fmt": "4.54",
+        "median_fmt": "4.10"
+      }
+    },
+    "UMCSENT": {
+      "id": "UMCSENT",
+      "label_zh": "密歇根消費者信心",
+      "label_en": "U. Michigan sentiment",
+      "unit": "index",
+      "fred_url": "https://fred.stlouisfed.org/series/UMCSENT",
+      "start": "1952-11-01",
+      "end": "2026-08-01",
+      "n_obs": 676,
+      "mean": 84.367751,
+      "median": 88.3,
+      "stdev": 13.741963,
+      "p10": 64.5,
+      "p25": 73.975,
+      "p75": 94.625,
+      "p90": 99.6,
+      "min": 44.8,
+      "max": 112.0,
+      "mean_fmt": "84.4",
+      "median_fmt": "88.3",
+      "p10_fmt": "64.5",
+      "p90_fmt": "99.6",
+      "latest": {
+        "date": "2026-08-01",
+        "value": 51.7,
+        "value_fmt": "51.7"
+      },
+      "trailing_10y": {
+        "n_obs": 121,
+        "start_approx": "2016-07-29",
+        "mean": 77.142149,
+        "median": 74.1,
+        "p10": 55.1,
+        "p90": 98.4,
+        "mean_fmt": "77.1",
+        "median_fmt": "74.1"
+      }
+    },
+    "PERMIT": {
+      "id": "PERMIT",
+      "label_zh": "建築許可",
+      "label_en": "Building permits",
+      "unit": "SAAR thou",
+      "fred_url": "https://fred.stlouisfed.org/series/PERMIT",
+      "start": "1960-01-01",
+      "end": "2026-08-01",
+      "n_obs": 800,
+      "mean": 1374.73,
+      "median": 1376.5,
+      "stdev": 372.594712,
+      "p10": 913.9,
+      "p25": 1133.5,
+      "p75": 1643.0,
+      "p90": 1818.1,
+      "min": 513.0,
+      "max": 2419.0,
+      "mean_fmt": "1,375",
+      "median_fmt": "1,376",
+      "p10_fmt": "914",
+      "p90_fmt": "1,818",
+      "latest": {
+        "date": "2026-08-01",
+        "value": 1403.0,
+        "value_fmt": "1,403"
+      },
+      "trailing_10y": {
+        "n_obs": 121,
+        "start_approx": "2016-07-29",
+        "mean": 1466.090909,
+        "median": 1444.0,
+        "p10": 1272.0,
+        "p90": 1710.0,
+        "mean_fmt": "1,466",
+        "median_fmt": "1,444"
+      }
+    },
+    "INDPRO": {
+      "id": "INDPRO",
+      "label_zh": "工業生產指數",
+      "label_en": "Industrial production",
+      "unit": "index",
+      "fred_url": "https://fred.stlouisfed.org/series/INDPRO",
+      "start": "1919-01-01",
+      "end": "2026-08-01",
+      "n_obs": 1292,
+      "mean": 47.054748,
+      "median": 41.1673,
+      "stdev": 35.283793,
+      "p10": 5.98329,
+      "p25": 13.99555,
+      "p75": 87.42845,
+      "p90": 100.04268,
+      "min": 3.6891,
+      "max": 104.1004,
+      "mean_fmt": "47.1",
+      "median_fmt": "41.2",
+      "p10_fmt": "5.98",
+      "p90_fmt": "100.0",
+      "latest": {
+        "date": "2026-08-01",
+        "value": 103.0682,
+        "value_fmt": "103.1"
+      },
+      "trailing_10y": {
+        "n_obs": 121,
+        "start_approx": "2016-07-29",
+        "mean": 100.397642,
+        "median": 100.9286,
+        "p10": 98.3646,
+        "p90": 102.842,
+        "mean_fmt": "100.4",
+        "median_fmt": "100.9"
+      }
+    }
+  },
+  "episodes": [
+    {
+      "id": "1987_black_monday",
+      "name_zh": "1987 黑色星期一",
+      "name_en": "1987 Black Monday",
+      "kind": "equity_crash",
+      "nber_recession": null,
+      "notes_zh": "股市急挫（非 NBER 衰退）。部分序列當時未存在或樣本極短。",
+      "anchors": {
+        "before": "1987-04-19",
+        "peak_stress": "1987-10-19",
+        "trough": "1987-12-04",
+        "after": "1988-10-19"
+      },
+      "series": {
+        "T10Y2Y": {
+          "id": "T10Y2Y",
+          "label_zh": "2s10s 孳息曲線",
+          "label_en": "2s10s",
+          "unit": "pp",
+          "series_start": "1976-06-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-16",
+              "value": 1.13,
+              "value_fmt": "1.13",
+              "lag_days": 3,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-19",
+              "value": 1.22,
+              "value_fmt": "1.22",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-12-04",
+              "value": 1.22,
+              "value_fmt": "1.22",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-19",
+              "value": 0.44,
+              "value_fmt": "0.44",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "T10YFF": {
+          "id": "T10YFF",
+          "label_zh": "10年−聯邦基金",
+          "label_en": "10y−FF",
+          "unit": "pp",
+          "series_start": "1962-01-02",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-16",
+              "value": 1.77,
+              "value_fmt": "1.77",
+              "lag_days": 3,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-19",
+              "value": 2.54,
+              "value_fmt": "2.54",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-12-04",
+              "value": 2.12,
+              "value_fmt": "2.12",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-19",
+              "value": 0.18,
+              "value_fmt": "0.18",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "BAMLH0A0HYM2": {
+          "id": "BAMLH0A0HYM2",
+          "label_zh": "美高收益OAS",
+          "label_en": "HY OAS",
+          "unit": "%",
+          "series_start": "2023-10-16",
+          "existed_at_before_anchor": false,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            }
+          },
+          "note_zh": "序列約由 2023-10-16 起；此事件早期可能無資料。"
+        },
+        "BAA10Y": {
+          "id": "BAA10Y",
+          "label_zh": "BAA−10年國債利差",
+          "label_en": "Moody's BAA−10y",
+          "unit": "pp",
+          "series_start": "1986-01-02",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-16",
+              "value": 2.09,
+              "value_fmt": "2.09",
+              "lag_days": 3,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-19",
+              "value": 1.89,
+              "value_fmt": "1.89",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-12-04",
+              "value": 2.27,
+              "value_fmt": "2.27",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-19",
+              "value": 1.59,
+              "value_fmt": "1.59",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "ICSA": {
+          "id": "ICSA",
+          "label_zh": "初領失業救濟",
+          "label_en": "Initial claims",
+          "unit": "claims",
+          "series_start": "1967-01-07",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-18",
+              "value": 349000.0,
+              "value_fmt": "349,000",
+              "lag_days": 1,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-17",
+              "value": 301000.0,
+              "value_fmt": "301,000",
+              "lag_days": 2,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-11-28",
+              "value": 306000.0,
+              "value_fmt": "306,000",
+              "lag_days": 6,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-15",
+              "value": 293000.0,
+              "value_fmt": "293,000",
+              "lag_days": 4,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "IC4WSA": {
+          "id": "IC4WSA",
+          "label_zh": "初領4週平均",
+          "label_en": "Claims 4w avg",
+          "unit": "claims",
+          "series_start": "1967-01-28",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-18",
+              "value": 335750.0,
+              "value_fmt": "335,750",
+              "lag_days": 1,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-17",
+              "value": 306750.0,
+              "value_fmt": "306,750",
+              "lag_days": 2,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-11-28",
+              "value": 306750.0,
+              "value_fmt": "306,750",
+              "lag_days": 6,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-15",
+              "value": 294500.0,
+              "value_fmt": "294,500",
+              "lag_days": 4,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "UNRATE": {
+          "id": "UNRATE",
+          "label_zh": "失業率",
+          "label_en": "Unemployment",
+          "unit": "%",
+          "series_start": "1948-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-01",
+              "value": 6.3,
+              "value_fmt": "6.30",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-01",
+              "value": 6.0,
+              "value_fmt": "6.00",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-12-01",
+              "value": 5.7,
+              "value_fmt": "5.70",
+              "lag_days": 3,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-01",
+              "value": 5.4,
+              "value_fmt": "5.40",
+              "lag_days": 18,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "UMCSENT": {
+          "id": "UMCSENT",
+          "label_zh": "密歇根消費者信心",
+          "label_en": "U. Michigan sentiment",
+          "unit": "index",
+          "series_start": "1952-11-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-01",
+              "value": 92.8,
+              "value_fmt": "92.8",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-01",
+              "value": 89.3,
+              "value_fmt": "89.3",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-12-01",
+              "value": 86.8,
+              "value_fmt": "86.8",
+              "lag_days": 3,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-01",
+              "value": 94.1,
+              "value_fmt": "94.1",
+              "lag_days": 18,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "INDPRO": {
+          "id": "INDPRO",
+          "label_zh": "工業生產指數",
+          "label_en": "Industrial production",
+          "unit": "index",
+          "series_start": "1919-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-01",
+              "value": 57.2701,
+              "value_fmt": "57.3",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-01",
+              "value": 59.781,
+              "value_fmt": "59.8",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-12-01",
+              "value": 60.4095,
+              "value_fmt": "60.4",
+              "lag_days": 3,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-01",
+              "value": 61.6453,
+              "value_fmt": "61.6",
+              "lag_days": 18,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "PERMIT": {
+          "id": "PERMIT",
+          "label_zh": "建築許可",
+          "label_en": "Building permits",
+          "unit": "SAAR thou",
+          "series_start": "1960-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": true,
+              "date": "1987-04-01",
+              "value": 1601.0,
+              "value_fmt": "1,601",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": true,
+              "date": "1987-10-01",
+              "value": 1447.0,
+              "value_fmt": "1,447",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": true,
+              "date": "1987-12-01",
+              "value": 1345.0,
+              "value_fmt": "1,345",
+              "lag_days": 3,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": true,
+              "date": "1988-10-01",
+              "value": 1516.0,
+              "value_fmt": "1,516",
+              "lag_days": 18,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "SP500": {
+          "id": "SP500",
+          "label_zh": "標普500",
+          "label_en": "S&P 500",
+          "unit": "index",
+          "series_start": "2016-10-17",
+          "existed_at_before_anchor": false,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1987-04-19",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "1987-10-19",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "1987-12-04",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "1988-10-19",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            }
+          },
+          "note_zh": "序列約由 2016-10-17 起；此事件早期可能無資料。"
+        }
+      }
+    },
+    {
+      "id": "2000_02_dotcom",
+      "name_zh": "2000–02 科網泡沫",
+      "name_en": "2000–02 Dot-com",
+      "kind": "equity_crash_and_recession",
+      "nber_recession": {
+        "start": "2001-03-01",
+        "end": "2001-11-01"
+      },
+      "notes_zh": "股市高峰約 2000-03；NBER 衰退 2001-03 至 2001-11；標普大致低位約 2002-10。",
+      "anchors": {
+        "before": "1999-09-24",
+        "peak_stress": "2000-03-24",
+        "trough": "2002-10-09",
+        "after": "2003-10-09"
+      },
+      "series": {
+        "T10Y2Y": {
+          "id": "T10Y2Y",
+          "label_zh": "2s10s 孳息曲線",
+          "label_en": "2s10s",
+          "unit": "pp",
+          "series_start": "1976-06-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-24",
+              "value": 0.2,
+              "value_fmt": "0.20",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-24",
+              "value": -0.44,
+              "value_fmt": "-0.44",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-09",
+              "value": 1.89,
+              "value_fmt": "1.89",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-09",
+              "value": 2.63,
+              "value_fmt": "2.63",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "T10YFF": {
+          "id": "T10YFF",
+          "label_zh": "10年−聯邦基金",
+          "label_en": "10y−FF",
+          "unit": "pp",
+          "series_start": "1962-01-02",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-24",
+              "value": 0.52,
+              "value_fmt": "0.52",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-24",
+              "value": 0.22,
+              "value_fmt": "0.22",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-09",
+              "value": 1.88,
+              "value_fmt": "1.88",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-09",
+              "value": 3.3,
+              "value_fmt": "3.30",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "BAMLH0A0HYM2": {
+          "id": "BAMLH0A0HYM2",
+          "label_zh": "美高收益OAS",
+          "label_en": "HY OAS",
+          "unit": "%",
+          "series_start": "2023-10-16",
+          "existed_at_before_anchor": false,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            }
+          },
+          "note_zh": "序列約由 2023-10-16 起；此事件早期可能無資料。"
+        },
+        "BAA10Y": {
+          "id": "BAA10Y",
+          "label_zh": "BAA−10年國債利差",
+          "label_en": "Moody's BAA−10y",
+          "unit": "pp",
+          "series_start": "1986-01-02",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-24",
+              "value": 2.41,
+              "value_fmt": "2.41",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-24",
+              "value": 2.13,
+              "value_fmt": "2.13",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-09",
+              "value": 3.9,
+              "value_fmt": "3.90",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-09",
+              "value": 2.5,
+              "value_fmt": "2.50",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "ICSA": {
+          "id": "ICSA",
+          "label_zh": "初領失業救濟",
+          "label_en": "Initial claims",
+          "unit": "claims",
+          "series_start": "1967-01-07",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-18",
+              "value": 281000.0,
+              "value_fmt": "281,000",
+              "lag_days": 6,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-18",
+              "value": 271000.0,
+              "value_fmt": "271,000",
+              "lag_days": 6,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-05",
+              "value": 404000.0,
+              "value_fmt": "404,000",
+              "lag_days": 4,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-04",
+              "value": 386000.0,
+              "value_fmt": "386,000",
+              "lag_days": 5,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "IC4WSA": {
+          "id": "IC4WSA",
+          "label_zh": "初領4週平均",
+          "label_en": "Claims 4w avg",
+          "unit": "claims",
+          "series_start": "1967-01-28",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-18",
+              "value": 285500.0,
+              "value_fmt": "285,500",
+              "lag_days": 6,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-18",
+              "value": 276750.0,
+              "value_fmt": "276,750",
+              "lag_days": 6,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-05",
+              "value": 406500.0,
+              "value_fmt": "406,500",
+              "lag_days": 4,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-04",
+              "value": 386500.0,
+              "value_fmt": "386,500",
+              "lag_days": 5,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "UNRATE": {
+          "id": "UNRATE",
+          "label_zh": "失業率",
+          "label_en": "Unemployment",
+          "unit": "%",
+          "series_start": "1948-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-01",
+              "value": 4.2,
+              "value_fmt": "4.20",
+              "lag_days": 23,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-01",
+              "value": 4.0,
+              "value_fmt": "4.00",
+              "lag_days": 23,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-01",
+              "value": 5.7,
+              "value_fmt": "5.70",
+              "lag_days": 8,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-01",
+              "value": 6.0,
+              "value_fmt": "6.00",
+              "lag_days": 8,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "UMCSENT": {
+          "id": "UMCSENT",
+          "label_zh": "密歇根消費者信心",
+          "label_en": "U. Michigan sentiment",
+          "unit": "index",
+          "series_start": "1952-11-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-01",
+              "value": 107.2,
+              "value_fmt": "107.2",
+              "lag_days": 23,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-01",
+              "value": 107.1,
+              "value_fmt": "107.1",
+              "lag_days": 23,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-01",
+              "value": 80.6,
+              "value_fmt": "80.6",
+              "lag_days": 8,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-01",
+              "value": 89.6,
+              "value_fmt": "89.6",
+              "lag_days": 8,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "INDPRO": {
+          "id": "INDPRO",
+          "label_zh": "工業生產指數",
+          "label_en": "Industrial production",
+          "unit": "index",
+          "series_start": "1919-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-01",
+              "value": 89.4299,
+              "value_fmt": "89.4",
+              "lag_days": 23,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-01",
+              "value": 92.1504,
+              "value_fmt": "92.2",
+              "lag_days": 23,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-01",
+              "value": 90.4643,
+              "value_fmt": "90.5",
+              "lag_days": 8,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-01",
+              "value": 91.6186,
+              "value_fmt": "91.6",
+              "lag_days": 8,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "PERMIT": {
+          "id": "PERMIT",
+          "label_zh": "建築許可",
+          "label_en": "Building permits",
+          "unit": "SAAR thou",
+          "series_start": "1960-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": true,
+              "date": "1999-09-01",
+              "value": 1551.0,
+              "value_fmt": "1,551",
+              "lag_days": 23,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": true,
+              "date": "2000-03-01",
+              "value": 1651.0,
+              "value_fmt": "1,651",
+              "lag_days": 23,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": true,
+              "date": "2002-10-01",
+              "value": 1799.0,
+              "value_fmt": "1,799",
+              "lag_days": 8,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": true,
+              "date": "2003-10-01",
+              "value": 2012.0,
+              "value_fmt": "2,012",
+              "lag_days": 8,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "SP500": {
+          "id": "SP500",
+          "label_zh": "標普500",
+          "label_en": "S&P 500",
+          "unit": "index",
+          "series_start": "2016-10-17",
+          "existed_at_before_anchor": false,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "1999-09-24",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2000-03-24",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2002-10-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2003-10-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            }
+          },
+          "note_zh": "序列約由 2016-10-17 起；此事件早期可能無資料。"
+        }
+      }
+    },
+    {
+      "id": "2007_09_gfc",
+      "name_zh": "2007–09 金融海嘯",
+      "name_en": "2007–09 GFC",
+      "kind": "equity_crash_and_recession",
+      "nber_recession": {
+        "start": "2007-12-01",
+        "end": "2009-06-01"
+      },
+      "notes_zh": "NBER 衰退 2007-12 至 2009-06；標普低位約 2009-03。",
+      "anchors": {
+        "before": "2007-04-09",
+        "peak_stress": "2007-10-09",
+        "trough": "2009-03-09",
+        "after": "2010-03-09"
+      },
+      "series": {
+        "T10Y2Y": {
+          "id": "T10Y2Y",
+          "label_zh": "2s10s 孳息曲線",
+          "label_en": "2s10s",
+          "unit": "pp",
+          "series_start": "1976-06-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-09",
+              "value": 0.02,
+              "value_fmt": "0.02",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-09",
+              "value": 0.52,
+              "value_fmt": "0.52",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-09",
+              "value": 1.93,
+              "value_fmt": "1.93",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-09",
+              "value": 2.82,
+              "value_fmt": "2.82",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "T10YFF": {
+          "id": "T10YFF",
+          "label_zh": "10年−聯邦基金",
+          "label_en": "10y−FF",
+          "unit": "pp",
+          "series_start": "1962-01-02",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-09",
+              "value": -0.53,
+              "value_fmt": "-0.53",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-09",
+              "value": -0.24,
+              "value_fmt": "-0.24",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-09",
+              "value": 2.69,
+              "value_fmt": "2.69",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-09",
+              "value": 3.57,
+              "value_fmt": "3.57",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "BAMLH0A0HYM2": {
+          "id": "BAMLH0A0HYM2",
+          "label_zh": "美高收益OAS",
+          "label_en": "HY OAS",
+          "unit": "%",
+          "series_start": "2023-10-16",
+          "existed_at_before_anchor": false,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            }
+          },
+          "note_zh": "序列約由 2023-10-16 起；此事件早期可能無資料。"
+        },
+        "BAA10Y": {
+          "id": "BAA10Y",
+          "label_zh": "BAA−10年國債利差",
+          "label_en": "Moody's BAA−10y",
+          "unit": "pp",
+          "series_start": "1986-01-02",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-09",
+              "value": 1.72,
+              "value_fmt": "1.72",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-09",
+              "value": 1.9,
+              "value_fmt": "1.90",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-09",
+              "value": 5.4,
+              "value_fmt": "5.40",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-09",
+              "value": 2.61,
+              "value_fmt": "2.61",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "ICSA": {
+          "id": "ICSA",
+          "label_zh": "初領失業救濟",
+          "label_en": "Initial claims",
+          "unit": "claims",
+          "series_start": "1967-01-07",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-07",
+              "value": 332000.0,
+              "value_fmt": "332,000",
+              "lag_days": 2,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-06",
+              "value": 316000.0,
+              "value_fmt": "316,000",
+              "lag_days": 3,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-07",
+              "value": 660000.0,
+              "value_fmt": "660,000",
+              "lag_days": 2,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-06",
+              "value": 472000.0,
+              "value_fmt": "472,000",
+              "lag_days": 3,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "IC4WSA": {
+          "id": "IC4WSA",
+          "label_zh": "初領4週平均",
+          "label_en": "Claims 4w avg",
+          "unit": "claims",
+          "series_start": "1967-01-28",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-07",
+              "value": 312750.0,
+              "value_fmt": "312,750",
+              "lag_days": 2,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-06",
+              "value": 312000.0,
+              "value_fmt": "312,000",
+              "lag_days": 3,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-07",
+              "value": 649750.0,
+              "value_fmt": "649,750",
+              "lag_days": 2,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-06",
+              "value": 487250.0,
+              "value_fmt": "487,250",
+              "lag_days": 3,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "UNRATE": {
+          "id": "UNRATE",
+          "label_zh": "失業率",
+          "label_en": "Unemployment",
+          "unit": "%",
+          "series_start": "1948-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-01",
+              "value": 4.5,
+              "value_fmt": "4.50",
+              "lag_days": 8,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-01",
+              "value": 4.7,
+              "value_fmt": "4.70",
+              "lag_days": 8,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-01",
+              "value": 8.7,
+              "value_fmt": "8.70",
+              "lag_days": 8,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-01",
+              "value": 9.9,
+              "value_fmt": "9.90",
+              "lag_days": 8,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "UMCSENT": {
+          "id": "UMCSENT",
+          "label_zh": "密歇根消費者信心",
+          "label_en": "U. Michigan sentiment",
+          "unit": "index",
+          "series_start": "1952-11-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-01",
+              "value": 87.1,
+              "value_fmt": "87.1",
+              "lag_days": 8,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-01",
+              "value": 80.9,
+              "value_fmt": "80.9",
+              "lag_days": 8,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-01",
+              "value": 57.3,
+              "value_fmt": "57.3",
+              "lag_days": 8,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-01",
+              "value": 73.6,
+              "value_fmt": "73.6",
+              "lag_days": 8,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "INDPRO": {
+          "id": "INDPRO",
+          "label_zh": "工業生產指數",
+          "label_en": "Industrial production",
+          "unit": "index",
+          "series_start": "1919-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-01",
+              "value": 101.6334,
+              "value_fmt": "101.6",
+              "lag_days": 8,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-01",
+              "value": 101.8015,
+              "value_fmt": "101.8",
+              "lag_days": 8,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-01",
+              "value": 86.6528,
+              "value_fmt": "86.7",
+              "lag_days": 8,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-01",
+              "value": 90.2928,
+              "value_fmt": "90.3",
+              "lag_days": 8,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "PERMIT": {
+          "id": "PERMIT",
+          "label_zh": "建築許可",
+          "label_en": "Building permits",
+          "unit": "SAAR thou",
+          "series_start": "1960-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": true,
+              "date": "2007-04-01",
+              "value": 1470.0,
+              "value_fmt": "1,470",
+              "lag_days": 8,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": true,
+              "date": "2007-10-01",
+              "value": 1192.0,
+              "value_fmt": "1,192",
+              "lag_days": 8,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": true,
+              "date": "2009-03-01",
+              "value": 513.0,
+              "value_fmt": "513",
+              "lag_days": 8,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": true,
+              "date": "2010-03-01",
+              "value": 687.0,
+              "value_fmt": "687",
+              "lag_days": 8,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "SP500": {
+          "id": "SP500",
+          "label_zh": "標普500",
+          "label_en": "S&P 500",
+          "unit": "index",
+          "series_start": "2016-10-17",
+          "existed_at_before_anchor": false,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2007-04-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2007-10-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2009-03-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2010-03-09",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            }
+          },
+          "note_zh": "序列約由 2016-10-17 起；此事件早期可能無資料。"
+        }
+      }
+    },
+    {
+      "id": "2020_covid",
+      "name_zh": "2020 COVID 急挫",
+      "name_en": "2020 COVID crash",
+      "kind": "equity_crash_and_recession",
+      "nber_recession": {
+        "start": "2020-02-01",
+        "end": "2020-04-01"
+      },
+      "notes_zh": "NBER 衰退 2020-02 至 2020-04；標普低位約 2020-03-23。",
+      "anchors": {
+        "before": "2019-08-19",
+        "peak_stress": "2020-02-19",
+        "trough": "2020-03-23",
+        "after": "2021-03-23"
+      },
+      "series": {
+        "T10Y2Y": {
+          "id": "T10Y2Y",
+          "label_zh": "2s10s 孳息曲線",
+          "label_en": "2s10s",
+          "unit": "pp",
+          "series_start": "1976-06-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-19",
+              "value": 0.07,
+              "value_fmt": "0.07",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-19",
+              "value": 0.14,
+              "value_fmt": "0.14",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-23",
+              "value": 0.48,
+              "value_fmt": "0.48",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-23",
+              "value": 1.48,
+              "value_fmt": "1.48",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "T10YFF": {
+          "id": "T10YFF",
+          "label_zh": "10年−聯邦基金",
+          "label_en": "10y−FF",
+          "unit": "pp",
+          "series_start": "1962-01-02",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-19",
+              "value": -0.53,
+              "value_fmt": "-0.53",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-19",
+              "value": -0.03,
+              "value_fmt": "-0.03",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-23",
+              "value": 0.61,
+              "value_fmt": "0.61",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-23",
+              "value": 1.56,
+              "value_fmt": "1.56",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "BAMLH0A0HYM2": {
+          "id": "BAMLH0A0HYM2",
+          "label_zh": "美高收益OAS",
+          "label_en": "HY OAS",
+          "unit": "%",
+          "series_start": "2023-10-16",
+          "existed_at_before_anchor": false,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": false,
+              "reason": "series_not_started_or_no_obs_before_date"
+            }
+          },
+          "note_zh": "序列約由 2023-10-16 起；此事件早期可能無資料。"
+        },
+        "BAA10Y": {
+          "id": "BAA10Y",
+          "label_zh": "BAA−10年國債利差",
+          "label_en": "Moody's BAA−10y",
+          "unit": "pp",
+          "series_start": "1986-01-02",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-19",
+              "value": 2.29,
+              "value_fmt": "2.29",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-19",
+              "value": 2.05,
+              "value_fmt": "2.05",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-23",
+              "value": 4.31,
+              "value_fmt": "4.31",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-23",
+              "value": 2.11,
+              "value_fmt": "2.11",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "ICSA": {
+          "id": "ICSA",
+          "label_zh": "初領失業救濟",
+          "label_en": "Initial claims",
+          "unit": "claims",
+          "series_start": "1967-01-07",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-17",
+              "value": 207000.0,
+              "value_fmt": "207,000",
+              "lag_days": 2,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-15",
+              "value": 209000.0,
+              "value_fmt": "209,000",
+              "lag_days": 4,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-21",
+              "value": 2914000.0,
+              "value_fmt": "2,914,000",
+              "lag_days": 2,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-20",
+              "value": 627000.0,
+              "value_fmt": "627,000",
+              "lag_days": 3,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "IC4WSA": {
+          "id": "IC4WSA",
+          "label_zh": "初領4週平均",
+          "label_en": "Claims 4w avg",
+          "unit": "claims",
+          "series_start": "1967-01-28",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-17",
+              "value": 208250.0,
+              "value_fmt": "208,250",
+              "lag_days": 2,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-15",
+              "value": 207000.0,
+              "value_fmt": "207,000",
+              "lag_days": 4,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-21",
+              "value": 902500.0,
+              "value_fmt": "902,500",
+              "lag_days": 2,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-20",
+              "value": 680750.0,
+              "value_fmt": "680,750",
+              "lag_days": 3,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "UNRATE": {
+          "id": "UNRATE",
+          "label_zh": "失業率",
+          "label_en": "Unemployment",
+          "unit": "%",
+          "series_start": "1948-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-01",
+              "value": 3.6,
+              "value_fmt": "3.60",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-01",
+              "value": 3.5,
+              "value_fmt": "3.50",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-01",
+              "value": 4.4,
+              "value_fmt": "4.40",
+              "lag_days": 22,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-01",
+              "value": 6.1,
+              "value_fmt": "6.10",
+              "lag_days": 22,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "UMCSENT": {
+          "id": "UMCSENT",
+          "label_zh": "密歇根消費者信心",
+          "label_en": "U. Michigan sentiment",
+          "unit": "index",
+          "series_start": "1952-11-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-01",
+              "value": 89.8,
+              "value_fmt": "89.8",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-01",
+              "value": 101.0,
+              "value_fmt": "101.0",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-01",
+              "value": 89.1,
+              "value_fmt": "89.1",
+              "lag_days": 22,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-01",
+              "value": 84.9,
+              "value_fmt": "84.9",
+              "lag_days": 22,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "INDPRO": {
+          "id": "INDPRO",
+          "label_zh": "工業生產指數",
+          "label_en": "Industrial production",
+          "unit": "index",
+          "series_start": "1919-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-01",
+              "value": 102.639,
+              "value_fmt": "102.6",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-01",
+              "value": 101.3735,
+              "value_fmt": "101.4",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-01",
+              "value": 97.4078,
+              "value_fmt": "97.4",
+              "lag_days": 22,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-01",
+              "value": 98.3856,
+              "value_fmt": "98.4",
+              "lag_days": 22,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "PERMIT": {
+          "id": "PERMIT",
+          "label_zh": "建築許可",
+          "label_en": "Building permits",
+          "unit": "SAAR thou",
+          "series_start": "1960-01-01",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-01",
+              "value": 1482.0,
+              "value_fmt": "1,482",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-01",
+              "value": 1461.0,
+              "value_fmt": "1,461",
+              "lag_days": 18,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-01",
+              "value": 1351.0,
+              "value_fmt": "1,351",
+              "lag_days": 22,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-01",
+              "value": 1756.0,
+              "value_fmt": "1,756",
+              "lag_days": 22,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        },
+        "SP500": {
+          "id": "SP500",
+          "label_zh": "標普500",
+          "label_en": "S&P 500",
+          "unit": "index",
+          "series_start": "2016-10-17",
+          "existed_at_before_anchor": true,
+          "points": {
+            "before_6_12m": {
+              "anchor": "before",
+              "target_date": "2019-08-19",
+              "available": true,
+              "date": "2019-08-19",
+              "value": 2923.65,
+              "value_fmt": "2,923.7",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_peak_stress": {
+              "anchor": "peak_stress",
+              "target_date": "2020-02-19",
+              "available": true,
+              "date": "2020-02-19",
+              "value": 3386.15,
+              "value_fmt": "3,386.2",
+              "lag_days": 0,
+              "stale": false
+            },
+            "at_trough": {
+              "anchor": "trough",
+              "target_date": "2020-03-23",
+              "available": true,
+              "date": "2020-03-23",
+              "value": 2237.4,
+              "value_fmt": "2,237.4",
+              "lag_days": 0,
+              "stale": false
+            },
+            "after_6_12m": {
+              "anchor": "after",
+              "target_date": "2021-03-23",
+              "available": true,
+              "date": "2021-03-23",
+              "value": 3910.52,
+              "value_fmt": "3,910.5",
+              "lag_days": 0,
+              "stale": false
+            }
+          },
+          "note_zh": null
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "fred_coverage_notes": {
+    "BAMLH0A0HYM2": "As of ~Apr 2026 FRED keeps ~3y of ICE BofA HY OAS; older history not on FRED.",
+    "SP500": "FRED S&P 500 daily history limited to ~10y under S&P DJI agreement."
+  },
+  "gaps_zh": [
+    "BAMLH0A0HYM2（HY OAS）：FRED 自約 2026-04 起只保留約 3 年；更早股災無 FRED 數值可取。長歷史信用利差改用 BAA10Y。",
+    "SP500：FRED 日線約僅 10 年；1987／2000／2007 事件無 FRED SPX 水平可取。"
+  ]
+}
