@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-16 16:47 HKT",
-  "generated_at_utc": "2026-10-16T08:47:58Z",
+  "generated_at": "2026-10-17 01:08 HKT",
+  "generated_at_utc": "2026-10-16T17:08:36Z",
   "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
   "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
   "models": [
@@ -82,7 +82,7 @@
         "name": "HY OAS",
         "vote": -1,
         "risk_contrib": 100.0,
-        "detail": "3.25%（走闊）"
+        "detail": "3.23%（走闊）"
       },
       {
         "name": "標普500",
