@@ -73,6 +73,19 @@ Displayed **side-by-side** with the site rule risk:
 
 `scripts/fetch_fred.py` writes these into `docs/data.json` (`public_probs`, `site_risk`) and `docs/public_probs.json`. Official NY Fed **CSV/XLS** was not available at refresh time (404); values come from the official PDF chart and/or the same published parameters applied to FRED `T10Y3M` monthly averages — **not invented**.
 
+### 而家 vs 大股災／衰退前（公開模型對照）
+
+Under the probability cards, the page shows a dated comparison table:
+
+| Column | Content |
+|--------|---------|
+| **NY Fed** | Same published α/β × FRED `T10Y3M` monthly avg at anchors ~6–12m before equity peaks / NBER starts (Dot-com, GFC, COVID; optional 1990). 「而家」uses the live official print when available. 1987 is labeled **retrospective** (Black Monday was not an NBER recession; modern chart publication came later). |
+| **Chauvet–Piger** | FRED `RECPROUSM156N` at the same anchors; secondary rows show the series **rising into** recessions (nowcast, not 12m-ahead). |
+| **本站規則評估** | **Not** in the crash table — it is a current vote mapping, **not** historically calibrated / backtested crash %. |
+
+Anchors and values live in `docs/public_probs.json` → `crash_comparisons` (also embedded in `docs/data.json`). Offline fallbacks for history rebuilds: `scripts/data/T10Y3M_mirror.csv`, `scripts/data/RECPROUSM156N.csv`.
+
+
 **Disclaimer:** 公開模型 ≠ 本站預測；兩者都 **非投資建議**.
 
 ## Auto-updated (FRED)

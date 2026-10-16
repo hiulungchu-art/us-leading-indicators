@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-16 12:56 HKT",
-  "generated_at_utc": "2026-10-16T04:56:44Z",
+  "generated_at": "2026-10-16 13:55 HKT",
+  "generated_at_utc": "2026-10-16T05:55:37Z",
   "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
   "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
   "models": [
@@ -25,7 +25,8 @@
         "sample": "1959-01 to 2009-12"
       },
       "note_zh": "公開模型（NY Fed / Estrella–Mishkin 類期限利差 probit），非本站預測、非投資建議。官方 CSV/XLS 目前未提供；數值來自官方 PDF 圖表及／或以 FRED T10Y3M 月均套用其公開參數。",
-      "note_en": "Published NY Fed model, not this site's forecast. Not investment advice."
+      "note_en": "Published NY Fed model, not this site's forecast. Not investment advice.",
+      "probit_crosscheck_pct": 13.5538
     },
     {
       "id": "chauvet_piger_smoothed",
@@ -91,7 +92,456 @@
         "detail": "相對近期 +4.4%"
       }
     ],
-    "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、唔係投資建議。",
+    "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、未做歷史股災回測，唔係投資建議。",
     "note_en": "Mapped from the same on-page votes — not a calibrated probability. Not investment advice."
+  },
+  "crash_comparisons": {
+    "title_zh": "而家 vs 大股災／衰退前",
+    "title_en": "Now vs levels before major crashes / recessions",
+    "methodology_zh": "NY Fed：同一套公開 probit（α=−0.5333、β=−0.6330，樣本 1959-01–2009-12）套落 FRED T10Y3M 月均，計 12 個月前瞻衰退概率；「而家」優先用官方 PDF 圖表。Chauvet–Piger：FRED RECPROUSM156N 平滑「而家是否衰退」概率（會修訂）。錨點取目標月或之前最近一個月。數值唔會虛構。本站規則評估% 並非歷史校準／回測股災概率，故唔放入呢張對照表。",
+    "methodology_en": "NY Fed: published α/β on FRED T10Y3M monthly averages (12m-ahead); Now prefers official PDF. Chauvet–Piger: FRED RECPROUSM156N (nowcast; revises). Nearest month on/before each anchor. No invented numbers. Site rule risk % is not historically calibrated — omitted from this table.",
+    "sources": {
+      "ny_fed_page": "https://www.newyorkfed.org/research/capital_markets/ycfaq",
+      "ny_fed_pdf": "https://www.newyorkfed.org/medialibrary/media/research/capital_markets/Prob_Rec.pdf",
+      "t10y3m": "https://fred.stlouisfed.org/series/T10Y3M",
+      "recpro": "https://fred.stlouisfed.org/series/RECPROUSM156N",
+      "nber": "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions"
+    },
+    "fetch_sources": {
+      "t10y3m": "local_mirror_cache",
+      "recpro": "local_fred_cache"
+    },
+    "site_risk_note_zh": "本站規則評估而家 20.0% 係領先指標投票映射，唔係概率校準、未做股災回測，所以對照表只放 NY Fed / Chauvet–Piger 公開模型。",
+    "site_risk_note_en": "Site rule risk is a transparent vote mapping — not a calibrated probability and not backtested to crashes. Crash history table covers published models only.",
+    "rows": [
+      {
+        "id": "now",
+        "episode_id": "now",
+        "label_zh": "而家",
+        "label_en": "Now",
+        "role": "current",
+        "target_ym": "2026-09",
+        "context_zh": "最新公開模型讀數",
+        "show_in_main_table": true,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 12.76,
+          "value_pct_raw": 12.7587,
+          "obs_ym": "2026-09",
+          "spread_pp": 0.95509,
+          "method": "nyfed_pdf",
+          "source_note": "Official NY Fed chart / same published α/β"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 0.62,
+          "value_pct_raw": 0.62,
+          "obs_ym": "2026-08",
+          "method": "fred_csv_or_api",
+          "source_note": "FRED RECPROUSM156N"
+        }
+      },
+      {
+        "id": "1990_recession__before_nber_~6m",
+        "episode_id": "1990_recession",
+        "label_zh": "1990 衰退前（~6個月）",
+        "label_en": "1990 recession −6m",
+        "role": "before_nber_~6m",
+        "target_ym": "1990-01",
+        "context_zh": "NBER 1990-07→1991-03",
+        "show_in_main_table": true,
+        "cp_rising_row": false,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 23.31,
+          "value_pct_raw": 23.3115,
+          "obs_ym": "1990-01",
+          "target_ym": "1990-01",
+          "spread_pp": 0.30857,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 0.3,
+          "value_pct_raw": 0.3,
+          "obs_ym": "1990-01",
+          "target_ym": "1990-01",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "1990_recession__near_nber_start",
+        "episode_id": "1990_recession",
+        "label_zh": "1990 NBER 開始月",
+        "label_en": "1990 NBER start",
+        "role": "near_nber_start",
+        "target_ym": "1990-07",
+        "context_zh": "NBER 開始",
+        "show_in_main_table": true,
+        "cp_rising_row": false,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 18.12,
+          "value_pct_raw": 18.115,
+          "obs_ym": "1990-07",
+          "target_ym": "1990-07",
+          "spread_pp": 0.59667,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 9.52,
+          "value_pct_raw": 9.52,
+          "obs_ym": "1990-07",
+          "target_ym": "1990-07",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "2000_02_dotcom__before_equity_peak_~6m",
+        "episode_id": "2000_02_dotcom",
+        "label_zh": "科網 · 股峰前~6個月",
+        "label_en": "Dot-com −6m before equity peak",
+        "role": "before_equity_peak_~6m",
+        "target_ym": "1999-09",
+        "context_zh": "標普高峰約 2000-03；NBER 2001-03→2001-11",
+        "show_in_main_table": true,
+        "cp_rising_row": false,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 11.03,
+          "value_pct_raw": 11.0273,
+          "obs_ym": "1999-09",
+          "target_ym": "1999-09",
+          "spread_pp": 1.09286,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 0.12,
+          "value_pct_raw": 0.12,
+          "obs_ym": "1999-09",
+          "target_ym": "1999-09",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "2000_02_dotcom__before_nber_~6m",
+        "episode_id": "2000_02_dotcom",
+        "label_zh": "科網 · NBER 前~6個月",
+        "label_en": "Dot-com −6m before NBER",
+        "role": "before_nber_~6m",
+        "target_ym": "2000-09",
+        "context_zh": "NBER 2001-03 前約半年",
+        "show_in_main_table": true,
+        "cp_rising_row": false,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 38.39,
+          "value_pct_raw": 38.3885,
+          "obs_ym": "2000-09",
+          "target_ym": "2000-09",
+          "spread_pp": -0.376,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 1.12,
+          "value_pct_raw": 1.12,
+          "obs_ym": "2000-09",
+          "target_ym": "2000-09",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "2007_09_gfc__before_equity_peak_~6m",
+        "episode_id": "2007_09_gfc",
+        "label_zh": "金融海嘯 · 股峰前~6個月",
+        "label_en": "GFC −6m before equity peak",
+        "role": "before_equity_peak_~6m",
+        "target_ym": "2007-04",
+        "context_zh": "標普高峰約 2007-10；NBER 2007-12→2009-06",
+        "show_in_main_table": true,
+        "cp_rising_row": false,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 36.87,
+          "value_pct_raw": 36.8714,
+          "obs_ym": "2007-04",
+          "target_ym": "2007-04",
+          "spread_pp": -0.31286,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 0.12,
+          "value_pct_raw": 0.12,
+          "obs_ym": "2007-04",
+          "target_ym": "2007-04",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "2007_09_gfc__near_equity_peak",
+        "episode_id": "2007_09_gfc",
+        "label_zh": "金融海嘯 · 股峰附近",
+        "label_en": "GFC near equity peak",
+        "role": "near_equity_peak",
+        "target_ym": "2007-10",
+        "context_zh": "股峰附近、NBER 前約 2 個月",
+        "show_in_main_table": true,
+        "cp_rising_row": false,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 19.33,
+          "value_pct_raw": 19.3348,
+          "obs_ym": "2007-10",
+          "target_ym": "2007-10",
+          "spread_pp": 0.525,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 1.86,
+          "value_pct_raw": 1.86,
+          "obs_ym": "2007-10",
+          "target_ym": "2007-10",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "2020_covid__before_equity_peak_~6m",
+        "episode_id": "2020_covid",
+        "label_zh": "COVID · 股峰前~6個月",
+        "label_en": "COVID −6m before equity peak",
+        "role": "before_equity_peak_~6m",
+        "target_ym": "2019-08",
+        "context_zh": "標普高峰約 2020-02-19；NBER 2020-02→2020-04",
+        "show_in_main_table": true,
+        "cp_rising_row": false,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 38.1,
+          "value_pct_raw": 38.101,
+          "obs_ym": "2019-08",
+          "target_ym": "2019-08",
+          "spread_pp": -0.36409,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 0.54,
+          "value_pct_raw": 0.54,
+          "obs_ym": "2019-08",
+          "target_ym": "2019-08",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "1987_black_monday__before_crash_~6m",
+        "episode_id": "1987_black_monday",
+        "label_zh": "1987 黑色星期一前~6個月（事後套用）",
+        "label_en": "1987 Black Monday −6m (retrospective)",
+        "role": "before_crash_~6m",
+        "target_ym": "1987-04",
+        "context_zh": "股災 1987-10-19；非 NBER 衰退。當時未有而家呢份 NY Fed 公開圖表；用同一套公開 α/β 事後套用（參數樣本 1959–2009 含 1987）。",
+        "show_in_main_table": true,
+        "cp_rising_row": false,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 2.68,
+          "value_pct_raw": 2.6777,
+          "obs_ym": "1987-04",
+          "target_ym": "1987-04",
+          "spread_pp": 2.20714,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": true,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 0.04,
+          "value_pct_raw": 0.04,
+          "obs_ym": "1987-04",
+          "target_ym": "1987-04",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "2000_02_dotcom__early_recession_cp",
+        "episode_id": "2000_02_dotcom",
+        "label_zh": "科網 · 衰退早期（CP）",
+        "label_en": "Dot-com early recession (CP)",
+        "role": "early_recession_cp",
+        "target_ym": "2001-06",
+        "context_zh": "Chauvet–Piger 進入衰退後上升（而家狀態，非 12m 前瞻）",
+        "show_in_main_table": false,
+        "cp_rising_row": true,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 5.25,
+          "value_pct_raw": 5.246,
+          "obs_ym": "2001-06",
+          "target_ym": "2001-06",
+          "spread_pp": 1.71905,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 29.46,
+          "value_pct_raw": 29.46,
+          "obs_ym": "2001-06",
+          "target_ym": "2001-06",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "2007_09_gfc__early_recession_cp",
+        "episode_id": "2007_09_gfc",
+        "label_zh": "金融海嘯 · 衰退早期（CP）",
+        "label_en": "GFC early recession (CP)",
+        "role": "early_recession_cp",
+        "target_ym": "2008-06",
+        "context_zh": "Chauvet–Piger 進入衰退後上升",
+        "show_in_main_table": false,
+        "cp_rising_row": true,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 2.67,
+          "value_pct_raw": 2.6703,
+          "obs_ym": "2008-06",
+          "target_ym": "2008-06",
+          "spread_pp": 2.20905,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 87.72,
+          "value_pct_raw": 87.72,
+          "obs_ym": "2008-06",
+          "target_ym": "2008-06",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      },
+      {
+        "id": "2020_covid__early_recession_cp",
+        "episode_id": "2020_covid",
+        "label_zh": "COVID · 衰退月（CP）",
+        "label_en": "COVID recession month (CP)",
+        "role": "early_recession_cp",
+        "target_ym": "2020-03",
+        "context_zh": "Chauvet–Piger 急升至極高（而家狀態）",
+        "show_in_main_table": false,
+        "cp_rising_row": true,
+        "ny_fed": {
+          "available": true,
+          "value_pct": 18.49,
+          "value_pct_raw": 18.4863,
+          "obs_ym": "2020-03",
+          "target_ym": "2020-03",
+          "spread_pp": 0.57455,
+          "method": "nyfed_probit_t10y3m_monthly_avg",
+          "parameters": {
+            "alpha": -0.5333,
+            "beta": -0.633,
+            "sample": "1959-01 to 2009-12"
+          },
+          "retrospective": false,
+          "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)"
+        },
+        "chauvet_piger": {
+          "available": true,
+          "value_pct": 100.0,
+          "value_pct_raw": 100.0,
+          "obs_ym": "2020-03",
+          "target_ym": "2020-03",
+          "method": "fred_RECPROUSM156N",
+          "source_note": "FRED RECPROUSM156N (smoothed; revises)"
+        }
+      }
+    ],
+    "generated_with": {
+      "nyfed_alpha": -0.5333,
+      "nyfed_beta": -0.633
+    },
+    "site_risk_current_pct": 20.0
   }
 }

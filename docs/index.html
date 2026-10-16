@@ -151,6 +151,27 @@
   .risk-extra {
     font-size: .75rem; color: var(--muted); margin-top: .55rem;
   }
+
+  .crash-cmp {
+    margin-top: .85rem; padding-top: .65rem; border-top: 1px dashed var(--border);
+  }
+  .crash-cmp h3 {
+    margin: 0 0 .35rem; font-size: .9rem; font-weight: 600;
+  }
+  .crash-cmp .intro {
+    color: var(--muted); font-size: .75rem; margin: 0 0 .55rem; line-height: 1.45;
+  }
+  .crash-cmp .ref-table-wrap { margin-bottom: .45rem; }
+  .crash-cmp table.ref td.hl { color: var(--accent); font-weight: 600; }
+  .crash-cmp .honesty {
+    font-size: .72rem; color: var(--muted); margin: .35rem 0 0;
+    padding: .4rem .55rem; background: var(--card); border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .crash-cmp details {
+    margin-top: .45rem; font-size: .75rem; color: var(--muted);
+  }
+  .crash-cmp details summary { cursor: pointer; color: var(--accent); }
 </style>
 </head>
 <body>
@@ -334,11 +355,77 @@
         ).join("<br/>") + "</div>";
     }
 
+
+    function crashCmpHtml(cc) {
+      if (!cc || !cc.rows || !cc.rows.length) return "";
+      const main = cc.rows.filter(r => r.show_in_main_table);
+      const rising = cc.rows.filter(r => r.cp_rising_row);
+      function cellModel(obj, kind) {
+        if (!obj || !obj.available) {
+          return '<td class="na">' + esc((obj && obj.reason) || "無資料") + "</td>";
+        }
+        const tip = (obj.obs_ym ? ("觀測 " + obj.obs_ym) : "") +
+          (obj.spread_pp != null ? (" · 利差 " + obj.spread_pp + " pp") : "") +
+          (obj.method ? (" · " + obj.method) : "");
+        const cls = kind === "now" ? "num hl" : "num";
+        return '<td class="' + cls + '" title="' + esc(tip) + '">' +
+          fmtPct(obj.value_pct) +
+          '<div class="meta" style="font-size:.65rem">' + esc(obj.obs_ym || "") + "</div></td>";
+      }
+      let body = "";
+      main.forEach(r => {
+        body += "<tr>" +
+          "<td>" + esc(r.label_zh) +
+          (r.context_zh ? '<div class="meta" style="font-size:.65rem;white-space:normal;max-width:16rem">' + esc(r.context_zh) + "</div>" : "") +
+          "</td>" +
+          '<td class="muted">' + esc(r.target_ym || "—") + "</td>" +
+          cellModel(r.ny_fed, r.id === "now" ? "now" : "") +
+          cellModel(r.chauvet_piger, r.id === "now" ? "now" : "") +
+          "</tr>";
+      });
+      let risingHtml = "";
+      if (rising.length) {
+        let rb = "";
+        rising.forEach(r => {
+          rb += "<tr>" +
+            "<td>" + esc(r.label_zh) + "</td>" +
+            '<td class="muted">' + esc(r.target_ym || "") + "</td>" +
+            cellModel(r.ny_fed, "") +
+            cellModel(r.chauvet_piger, "") +
+            "</tr>";
+        });
+        risingHtml =
+          "<details><summary>Chauvet–Piger 進入衰退後上升（次要對照）</summary>" +
+          '<div class="ref-table-wrap" style="margin-top:.4rem"><table class="ref"><thead><tr>' +
+          "<th>時期</th><th>錨點月</th><th>NY Fed 12m前瞻</th><th>Chauvet–Piger</th>" +
+          "</tr></thead><tbody>" + rb + "</tbody></table></div>" +
+          '<p class="intro" style="margin:.35rem 0 0">CP 係「而家是否衰退」平滑概率，衰退入面會急升；NY Fed 係 12 個月前瞻，衰退入面往往已經回落。</p>' +
+          "</details>";
+      }
+      const src = cc.sources || {};
+      return '<div class="crash-cmp">' +
+        "<h3>" + esc(cc.title_zh || "而家 vs 大股災／衰退前") + "</h3>" +
+        '<p class="intro">' + esc(cc.methodology_zh || "") + "</p>" +
+        '<div class="ref-table-wrap"><table class="ref"><thead><tr>' +
+        "<th>時期</th><th>錨點月</th><th>NY Fed 12m前瞻</th><th>Chauvet–Piger（而家狀態）</th>" +
+        "</tr></thead><tbody>" + body + "</tbody></table></div>" +
+        '<p class="honesty">' + esc(cc.site_risk_note_zh ||
+          "本站規則評估唔係歷史校準概率，未放入股災對照。") + "</p>" +
+        risingHtml +
+        '<p class="intro" style="margin-top:.45rem">來源：' +
+        (src.ny_fed_page ? '<a href="' + src.ny_fed_page + '" rel="noopener" target="_blank">NY Fed</a> · ' : "") +
+        (src.t10y3m ? '<a href="' + src.t10y3m + '" rel="noopener" target="_blank">FRED T10Y3M</a> · ' : "") +
+        (src.recpro ? '<a href="' + src.recpro + '" rel="noopener" target="_blank">RECPROUSM156N</a> · ' : "") +
+        (src.nber ? '<a href="' + src.nber + '" rel="noopener" target="_blank">NBER</a>' : "") +
+        "</p></div>";
+    }
+
     panel.insertAdjacentHTML("beforeend",
       '<div class="badge ' + tone + '">' + (b.status || "—") +
       ' <span style="font-size:.85rem;font-weight:500;opacity:.85">/ ' + (b.status_en || "") + "</span></div>" +
       '<div class="risk-row">' + siteHtml + nyHtml + "</div>" +
       extraHtml +
+      crashCmpHtml((data.public_probs && data.public_probs.crash_comparisons) || null) +
       '<div class="badge-meta" style="margin-top:.65rem">得分 ' + (b.score != null ? b.score : "—") +
       " / " + (b.votes_cast || 0) + " 票 · " + (b.rule_summary_zh || "") + "</div>" +
       '<div class="votes">' + votesHtml + "</div>"

@@ -28,6 +28,7 @@ DOCS = ROOT / "docs"
 MANUAL_PATH = DOCS / "manual.json"
 OUT_PATH = DOCS / "data.json"
 PUBLIC_PROBS_PATH = DOCS / "public_probs.json"
+DATA_DIR = Path(__file__).resolve().parent / "data"
 
 # NY Fed Treasury term-spread model (Estrella–Mishkin / NY Fed published chart).
 # Parameters from Prob_Rec.pdf footnote (est. Jan 1959–Dec 2009).
@@ -416,6 +417,431 @@ def fetch_chauvet_piger(api_key: str | None) -> dict[str, Any]:
     }
 
 
+
+# Pre-crash / pre-recession anchors for public-model comparison (not invented dates).
+# Values = nearest month on/before target; NY Fed = published α/β × T10Y3M monthly avg.
+CRASH_PROB_ANCHORS: list[dict[str, Any]] = [
+    {
+        "episode_id": "1990_recession",
+        "label_zh": "1990 衰退前（~6個月）",
+        "label_en": "1990 recession −6m",
+        "role": "before_nber_~6m",
+        "target_ym": "1990-01",
+        "context_zh": "NBER 1990-07→1991-03",
+        "show_in_main_table": True,
+    },
+    {
+        "episode_id": "1990_recession",
+        "label_zh": "1990 NBER 開始月",
+        "label_en": "1990 NBER start",
+        "role": "near_nber_start",
+        "target_ym": "1990-07",
+        "context_zh": "NBER 開始",
+        "show_in_main_table": True,
+    },
+    {
+        "episode_id": "2000_02_dotcom",
+        "label_zh": "科網 · 股峰前~6個月",
+        "label_en": "Dot-com −6m before equity peak",
+        "role": "before_equity_peak_~6m",
+        "target_ym": "1999-09",
+        "context_zh": "標普高峰約 2000-03；NBER 2001-03→2001-11",
+        "show_in_main_table": True,
+    },
+    {
+        "episode_id": "2000_02_dotcom",
+        "label_zh": "科網 · NBER 前~6個月",
+        "label_en": "Dot-com −6m before NBER",
+        "role": "before_nber_~6m",
+        "target_ym": "2000-09",
+        "context_zh": "NBER 2001-03 前約半年",
+        "show_in_main_table": True,
+    },
+    {
+        "episode_id": "2007_09_gfc",
+        "label_zh": "金融海嘯 · 股峰前~6個月",
+        "label_en": "GFC −6m before equity peak",
+        "role": "before_equity_peak_~6m",
+        "target_ym": "2007-04",
+        "context_zh": "標普高峰約 2007-10；NBER 2007-12→2009-06",
+        "show_in_main_table": True,
+    },
+    {
+        "episode_id": "2007_09_gfc",
+        "label_zh": "金融海嘯 · 股峰附近",
+        "label_en": "GFC near equity peak",
+        "role": "near_equity_peak",
+        "target_ym": "2007-10",
+        "context_zh": "股峰附近、NBER 前約 2 個月",
+        "show_in_main_table": True,
+    },
+    {
+        "episode_id": "2020_covid",
+        "label_zh": "COVID · 股峰前~6個月",
+        "label_en": "COVID −6m before equity peak",
+        "role": "before_equity_peak_~6m",
+        "target_ym": "2019-08",
+        "context_zh": "標普高峰約 2020-02-19；NBER 2020-02→2020-04",
+        "show_in_main_table": True,
+    },
+    {
+        "episode_id": "1987_black_monday",
+        "label_zh": "1987 黑色星期一前~6個月（事後套用）",
+        "label_en": "1987 Black Monday −6m (retrospective)",
+        "role": "before_crash_~6m",
+        "target_ym": "1987-04",
+        "context_zh": "股災 1987-10-19；非 NBER 衰退。當時未有而家呢份 NY Fed 公開圖表；用同一套公開 α/β 事後套用（參數樣本 1959–2009 含 1987）。",
+        "retrospective_nyfed": True,
+        "show_in_main_table": True,
+    },
+    # Chauvet–Piger rises into recessions (nowcast) — secondary rows
+    {
+        "episode_id": "2000_02_dotcom",
+        "label_zh": "科網 · 衰退早期（CP）",
+        "label_en": "Dot-com early recession (CP)",
+        "role": "early_recession_cp",
+        "target_ym": "2001-06",
+        "context_zh": "Chauvet–Piger 進入衰退後上升（而家狀態，非 12m 前瞻）",
+        "show_in_main_table": False,
+        "cp_rising_row": True,
+    },
+    {
+        "episode_id": "2007_09_gfc",
+        "label_zh": "金融海嘯 · 衰退早期（CP）",
+        "label_en": "GFC early recession (CP)",
+        "role": "early_recession_cp",
+        "target_ym": "2008-06",
+        "context_zh": "Chauvet–Piger 進入衰退後上升",
+        "show_in_main_table": False,
+        "cp_rising_row": True,
+    },
+    {
+        "episode_id": "2020_covid",
+        "label_zh": "COVID · 衰退月（CP）",
+        "label_en": "COVID recession month (CP)",
+        "role": "early_recession_cp",
+        "target_ym": "2020-03",
+        "context_zh": "Chauvet–Piger 急升至極高（而家狀態）",
+        "show_in_main_table": False,
+        "cp_rising_row": True,
+    },
+]
+
+
+def _monthly_averages(points: list[tuple[str, float]]) -> dict[str, float]:
+    from collections import defaultdict
+
+    by_m: dict[str, list[float]] = defaultdict(list)
+    for d, v in points:
+        by_m[d[:7]].append(v)
+    return {ym: sum(vs) / len(vs) for ym, vs in by_m.items()}
+
+
+def _nearest_ym(series: dict[str, float], target_ym: str) -> tuple[str, float] | None:
+    keys = [k for k in series if k <= target_ym]
+    if not keys:
+        return None
+    k = keys[-1]
+    return k, series[k]
+
+
+def _load_csv_pairs(path: Path, date_col_hint: str | None = None) -> list[tuple[str, float]]:
+    raw = path.read_text(encoding="utf-8", errors="replace")
+    lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
+    if len(lines) < 2:
+        raise RuntimeError(f"{path}: empty")
+    header = [h.strip() for h in lines[0].split(",")]
+    # pick date col and value col
+    date_i, val_i = 0, 1
+    if date_col_hint and date_col_hint in header:
+        date_i = header.index(date_col_hint)
+    for i, h in enumerate(header):
+        hu = h.upper()
+        if hu in ("OBSERVATION_DATE", "DATE") or h.lower() == "date":
+            date_i = i
+        elif hu not in ("OBSERVATION_DATE", "DATE") and h.lower() != "date" and i != date_i:
+            val_i = i
+    # if 2 cols, value is the other
+    if len(header) == 2:
+        val_i = 1 - date_i
+    out: list[tuple[str, float]] = []
+    for ln in lines[1:]:
+        parts = ln.split(",")
+        if len(parts) <= max(date_i, val_i):
+            continue
+        d, v = parts[date_i].strip(), parts[val_i].strip()
+        if not v or v == ".":
+            continue
+        try:
+            out.append((d, float(v)))
+        except ValueError:
+            continue
+    if not out:
+        raise RuntimeError(f"{path}: no numeric rows")
+    return out
+
+
+def _curl_fred_csv(series_id: str, start: str | None = None, end: str | None = None, timeout: int = 45) -> list[tuple[str, float]]:
+    """FRED graph CSV via curl --http1.1 (more reliable than urllib on some hosts)."""
+    import subprocess
+
+    params = {"id": series_id}
+    if start:
+        params["cosd"] = start
+    if end:
+        params["coed"] = end
+    url = "https://fred.stlouisfed.org/graph/fredgraph.csv?" + urllib.parse.urlencode(params)
+    r = subprocess.run(
+        ["curl", "--http1.1", "-sL", "--max-time", str(timeout), "-A", "us-leading-indicators/1.0", url],
+        capture_output=True,
+        timeout=timeout + 5,
+    )
+    if r.returncode != 0 or not r.stdout:
+        raise RuntimeError(f"curl {series_id} failed rc={r.returncode}")
+    text = r.stdout.decode("utf-8", errors="replace")
+    if "observation_date" not in text[:80] and "DATE" not in text[:80] and series_id not in text[:120]:
+        raise RuntimeError(f"curl {series_id}: not CSV ({text[:60]!r})")
+    # write temp parse via same logic as fetch_csv
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    out: list[tuple[str, float]] = []
+    for ln in lines[1:]:
+        parts = ln.split(",")
+        if len(parts) < 2:
+            continue
+        d, v = parts[0].strip(), parts[1].strip()
+        if not v or v.upper() == ".":
+            continue
+        try:
+            out.append((d, float(v)))
+        except ValueError:
+            continue
+    if not out:
+        raise RuntimeError(f"curl {series_id}: empty")
+    return out
+
+
+def _load_t10y3m_history(api_key: str | None) -> tuple[dict[str, float], str]:
+    """Monthly averages of T10Y3M for NY Fed reconstruction. Returns (ym→spread, source_tag)."""
+    errors: list[str] = []
+    if api_key:
+        try:
+            pts = fetch_api_series("T10Y3M", api_key, start="1982-01-01")
+            return _monthly_averages(pts), "fred_api"
+        except Exception as e:
+            errors.append(f"api:{e}")
+    try:
+        raw = _http_get("https://eco3min.fr/dataset/yield-curve-10y-3m.csv", timeout=45)
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        tmp = DATA_DIR / "T10Y3M_mirror.csv"
+        tmp.write_bytes(raw)
+        pts = _load_csv_pairs(tmp)
+        return _monthly_averages(pts), "eco3min_fred_mirror"
+    except Exception as e:
+        errors.append(f"eco:{e}")
+    local = DATA_DIR / "T10Y3M_mirror.csv"
+    if local.exists():
+        pts = _load_csv_pairs(local)
+        return _monthly_averages(pts), "local_mirror_cache"
+    try:
+        pts = _curl_fred_csv("T10Y3M", start="1982-01-01", timeout=25)
+        return _monthly_averages(pts), "fred_csv_curl"
+    except Exception as e:
+        errors.append(f"curl:{e}")
+    raise RuntimeError("T10Y3M history unavailable: " + "; ".join(errors))
+
+
+
+def _load_recpro_history(api_key: str | None) -> tuple[dict[str, float], str]:
+    """RECPROUSM156N monthly map."""
+    errors: list[str] = []
+    if api_key:
+        try:
+            pts = fetch_api_series("RECPROUSM156N", api_key, start="1967-01-01")
+            return {d[:7]: v for d, v in pts}, "fred_api"
+        except Exception as e:
+            errors.append(f"api:{e}")
+    local = DATA_DIR / "RECPROUSM156N.csv"
+    if local.exists():
+        pts = _load_csv_pairs(local)
+        series = {d[:7]: v for d, v in pts}
+        try:
+            tip = _curl_fred_csv("RECPROUSM156N", start="2024-01-01", timeout=25)
+            for d, v in tip:
+                series[d[:7]] = v
+            lines = ["observation_date,RECPROUSM156N"] + [
+                f"{ym}-01,{series[ym]}" for ym in sorted(series)
+            ]
+            local.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            return series, "local_fred_cache+tip_curl"
+        except Exception as e:
+            errors.append(f"curl_tip:{e}")
+            return series, "local_fred_cache"
+    chunks = [
+        ("1967-01-01", "1989-12-31"),
+        ("1990-01-01", "2009-12-31"),
+        ("2010-01-01", "2026-12-31"),
+    ]
+    merged: list[tuple[str, float]] = []
+    try:
+        for a, b in chunks:
+            merged.extend(_curl_fred_csv("RECPROUSM156N", start=a, end=b, timeout=40))
+        if merged:
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            lines = ["observation_date,RECPROUSM156N"] + [f"{d},{v}" for d, v in merged]
+            (DATA_DIR / "RECPROUSM156N.csv").write_text("\n".join(lines) + "\n", encoding="utf-8")
+            return {d[:7]: v for d, v in merged}, "fred_csv_curl_chunked"
+    except Exception as e:
+        errors.append(f"curl:{e}")
+    raise RuntimeError("RECPROUSM156N history unavailable: " + "; ".join(errors))
+
+
+
+def build_crash_comparisons(
+    api_key: str | None,
+    ny_live: dict[str, Any] | None,
+    cp_live: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """
+    Dated 而家 vs 大股災／衰退前 comparison for NY Fed (reconstructed) + Chauvet–Piger.
+    Site rule risk is intentionally omitted from historical crash % (not calibrated).
+    """
+    t10, t10_src = _load_t10y3m_history(api_key)
+    rec, rec_src = _load_recpro_history(api_key)
+
+    rows: list[dict[str, Any]] = []
+
+    # Current row — prefer live published figures
+    now_ny = None
+    if ny_live and ny_live.get("value_pct") is not None:
+        now_ny = {
+            "available": True,
+            "value_pct": round(float(ny_live["value_pct"]), 2),
+            "value_pct_raw": float(ny_live.get("value_pct_raw", ny_live["value_pct"])),
+            "obs_ym": ny_live.get("date"),
+            "spread_pp": ny_live.get("spread_pp"),
+            "method": ny_live.get("fetch_method") or "live",
+            "source_note": "Official NY Fed chart / same published α/β",
+        }
+    now_cp = None
+    if cp_live and cp_live.get("value_pct") is not None:
+        now_cp = {
+            "available": True,
+            "value_pct": round(float(cp_live["value_pct"]), 2),
+            "value_pct_raw": float(cp_live.get("value_pct_raw", cp_live["value_pct"])),
+            "obs_ym": cp_live.get("date"),
+            "method": cp_live.get("fetch_method") or "live",
+            "source_note": "FRED RECPROUSM156N",
+        }
+    rows.append(
+        {
+            "id": "now",
+            "episode_id": "now",
+            "label_zh": "而家",
+            "label_en": "Now",
+            "role": "current",
+            "target_ym": (ny_live or {}).get("date") or (cp_live or {}).get("date"),
+            "context_zh": "最新公開模型讀數",
+            "show_in_main_table": True,
+            "ny_fed": now_ny or {"available": False, "reason": "live_ny_unavailable"},
+            "chauvet_piger": now_cp or {"available": False, "reason": "live_cp_unavailable"},
+        }
+    )
+
+    for a in CRASH_PROB_ANCHORS:
+        ym = a["target_ym"]
+        ny_hit = _nearest_ym(t10, ym)
+        cp_hit = _nearest_ym(rec, ym)
+        ny_obj: dict[str, Any]
+        if ny_hit:
+            obs_ym, spread = ny_hit
+            z = NYFED_ALPHA + NYFED_BETA * spread
+            pct = _norm_cdf(z) * 100.0
+            ny_obj = {
+                "available": True,
+                "value_pct": round(pct, 2),
+                "value_pct_raw": round(pct, 4),
+                "obs_ym": obs_ym,
+                "target_ym": ym,
+                "spread_pp": round(spread, 5),
+                "method": "nyfed_probit_t10y3m_monthly_avg",
+                "parameters": {"alpha": NYFED_ALPHA, "beta": NYFED_BETA, "sample": "1959-01 to 2009-12"},
+                "retrospective": bool(a.get("retrospective_nyfed")),
+                "source_note": "Published NY Fed α/β × FRED T10Y3M monthly average (not invented)",
+            }
+        else:
+            ny_obj = {"available": False, "reason": "no_t10y3m", "target_ym": ym}
+
+        cp_obj: dict[str, Any]
+        if cp_hit:
+            obs_ym, val = cp_hit
+            cp_obj = {
+                "available": True,
+                "value_pct": round(float(val), 2),
+                "value_pct_raw": float(val),
+                "obs_ym": obs_ym,
+                "target_ym": ym,
+                "method": "fred_RECPROUSM156N",
+                "source_note": "FRED RECPROUSM156N (smoothed; revises)",
+            }
+        else:
+            cp_obj = {"available": False, "reason": "no_recpro", "target_ym": ym}
+
+        rows.append(
+            {
+                "id": f"{a['episode_id']}__{a['role']}",
+                "episode_id": a["episode_id"],
+                "label_zh": a["label_zh"],
+                "label_en": a["label_en"],
+                "role": a["role"],
+                "target_ym": ym,
+                "context_zh": a.get("context_zh"),
+                "show_in_main_table": bool(a.get("show_in_main_table", True)),
+                "cp_rising_row": bool(a.get("cp_rising_row")),
+                "ny_fed": ny_obj,
+                "chauvet_piger": cp_obj,
+            }
+        )
+
+    return {
+        "title_zh": "而家 vs 大股災／衰退前",
+        "title_en": "Now vs levels before major crashes / recessions",
+        "methodology_zh": (
+            "NY Fed：同一套公開 probit（α=−0.5333、β=−0.6330，樣本 1959-01–2009-12）"
+            "套落 FRED T10Y3M 月均，計 12 個月前瞻衰退概率；「而家」優先用官方 PDF 圖表。"
+            "Chauvet–Piger：FRED RECPROUSM156N 平滑「而家是否衰退」概率（會修訂）。"
+            "錨點取目標月或之前最近一個月。數值唔會虛構。"
+            "本站規則評估% 並非歷史校準／回測股災概率，故唔放入呢張對照表。"
+        ),
+        "methodology_en": (
+            "NY Fed: published α/β on FRED T10Y3M monthly averages (12m-ahead); "
+            "Now prefers official PDF. Chauvet–Piger: FRED RECPROUSM156N (nowcast; revises). "
+            "Nearest month on/before each anchor. No invented numbers. "
+            "Site rule risk % is not historically calibrated — omitted from this table."
+        ),
+        "sources": {
+            "ny_fed_page": NYFED_PAGE,
+            "ny_fed_pdf": NYFED_PDF,
+            "t10y3m": "https://fred.stlouisfed.org/series/T10Y3M",
+            "recpro": "https://fred.stlouisfed.org/series/RECPROUSM156N",
+            "nber": "https://www.nber.org/research/data/us-business-cycle-expansions-and-contractions",
+        },
+        "fetch_sources": {"t10y3m": t10_src, "recpro": rec_src},
+        "site_risk_note_zh": (
+            "本站規則評估係領先指標投票映射，唔係概率校準、未做股災回測，"
+            "所以對照表只放 NY Fed / Chauvet–Piger 公開模型。"
+        ),
+        "site_risk_note_en": (
+            "Site rule risk is a transparent vote mapping — not a calibrated probability "
+            "and not backtested to crashes. Crash history table covers published models only."
+        ),
+        "rows": rows,
+        "generated_with": {
+            "nyfed_alpha": NYFED_ALPHA,
+            "nyfed_beta": NYFED_BETA,
+        },
+    }
+
+
 def compute_site_risk(badge: dict[str, Any]) -> dict[str, Any]:
     """
     Map transparent vote score → 0–100 衰退／急挫風險%.
@@ -471,7 +897,7 @@ def compute_site_risk(badge: dict[str, Any]) -> dict[str, Any]:
         ),
         "formula_used": formula_used,
         "components": components,
-        "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、唔係投資建議。",
+        "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、未做歷史股災回測，唔係投資建議。",
         "note_en": "Mapped from the same on-page votes — not a calibrated probability. Not investment advice.",
     }
 
@@ -673,6 +1099,27 @@ def main() -> int:
     public_probs["models"] = public_models
     primary = next((m for m in public_models if m.get("primary")), public_models[0] if public_models else None)
 
+    ny_live = next((m for m in public_models if m.get("id") == "ny_fed_yield_curve"), None)
+    cp_live = next((m for m in public_models if m.get("id") == "chauvet_piger_smoothed"), None)
+    crash_comp = None
+    print("Building crash/recession probability comparisons...")
+    try:
+        crash_comp = build_crash_comparisons(api_key, ny_live, cp_live)
+        # attach current site risk % into the honesty note
+        crash_comp["site_risk_note_zh"] = (
+            f"本站規則評估而家 {site_risk['value_pct']}% 係領先指標投票映射，"
+            "唔係概率校準、未做股災回測，所以對照表只放 NY Fed / Chauvet–Piger 公開模型。"
+        )
+        crash_comp["site_risk_current_pct"] = site_risk["value_pct"]
+        public_probs["crash_comparisons"] = crash_comp
+        n_main = sum(1 for r in crash_comp["rows"] if r.get("show_in_main_table"))
+        print(f"  → {n_main} main-table rows (t10={crash_comp['fetch_sources']['t10y3m']}, "
+              f"recpro={crash_comp['fetch_sources']['recpro']})")
+    except Exception as e:
+        msg = f"crash_comparisons: {e}"
+        print(f"  ERROR {msg}", file=sys.stderr)
+        errors.append(msg)
+
     payload = {
         "generated_at": now_hkt,
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -682,6 +1129,7 @@ def main() -> int:
         "public_probs": {
             "primary": primary,
             "models": public_models,
+            "crash_comparisons": crash_comp,
             "disclaimer_zh": public_probs["disclaimer_zh"],
             "disclaimer_en": public_probs["disclaimer_en"],
         },
