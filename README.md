@@ -43,6 +43,38 @@ Signals:
 
 Full vote detail is shown on the page under the badge.
 
+### 本站規則評估 · 衰退／急挫風險%（透明映射，非 ML）
+
+Same votes as the badge, remapped to a **0–100** risk percentage:
+
+| 每票 vote | 風險貢獻 |
+|----------:|--------:|
+| **+1**（偏牛） | **0%** |
+| **0**（中性） | **50%** |
+| **−1**（偏熊） | **100%** |
+
+等權平均，等價閉式：
+
+```text
+risk_raw = 100 × (votes_cast − score) / (2 × votes_cast)
+risk     = clamp(risk_raw, 5, 95)
+```
+
+Caps **5–95** avoid implying false certainty at 0% or 100%. This is **not** a calibrated probability and **not** the NY Fed model.
+
+### 公開衰退概率（NY Fed 等）
+
+Displayed **side-by-side** with the site rule risk:
+
+| Model | What it is | Source |
+|-------|------------|--------|
+| **NY Fed**（主） | 12-month-ahead recession probability from **10y−3m** Treasury spread (published probit; α=−0.5333, β=−0.6330, sample 1959–2009) | [NY Fed ycfaq](https://www.newyorkfed.org/research/capital_markets/ycfaq) · [Prob_Rec.pdf](https://www.newyorkfed.org/medialibrary/media/research/capital_markets/Prob_Rec.pdf) · spread via FRED `T10Y3M` |
+| **Chauvet–Piger**（次要） | Smoothed **current** recession probability | FRED [`RECPROUSM156N`](https://fred.stlouisfed.org/series/RECPROUSM156N) |
+
+`scripts/fetch_fred.py` writes these into `docs/data.json` (`public_probs`, `site_risk`) and `docs/public_probs.json`. Official NY Fed **CSV/XLS** was not available at refresh time (404); values come from the official PDF chart and/or the same published parameters applied to FRED `T10Y3M` monthly averages — **not invented**.
+
+**Disclaimer:** 公開模型 ≠ 本站預測；兩者都 **非投資建議**.
+
 ## Auto-updated (FRED)
 
 | Series | Meaning |

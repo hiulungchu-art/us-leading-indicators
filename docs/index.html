@@ -121,6 +121,36 @@
   .ep-meta { color: var(--muted); font-size: .75rem; margin-bottom: .55rem; }
   .ep-block .ref-table-wrap { margin-bottom: 0; border: none; }
   .na { color: var(--muted); font-style: italic; }
+
+  .risk-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
+    margin: .85rem 0 .35rem;
+  }
+  @media (max-width: 720px) { .risk-row { grid-template-columns: 1fr; } }
+  .risk-card {
+    background: var(--card2); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: .85rem 1rem;
+  }
+  .risk-card.primary { border-color: rgba(93,173,226,.45); }
+  .risk-card .tag {
+    font-size: .7rem; letter-spacing: .03em; color: var(--accent);
+    text-transform: none; font-weight: 600; margin-bottom: .2rem;
+  }
+  .risk-card .pct {
+    font-size: 1.75rem; font-weight: 700; font-family: var(--mono);
+    font-variant-numeric: tabular-nums; line-height: 1.2;
+  }
+  .risk-card .pct.high { color: var(--bear); }
+  .risk-card .pct.mid { color: var(--neutral); }
+  .risk-card .pct.low { color: var(--bull); }
+  .risk-card .sub { font-size: .78rem; color: var(--muted); margin-top: .25rem; }
+  .risk-card .formula {
+    font-size: .72rem; color: var(--muted); margin-top: .45rem;
+    border-top: 1px dashed var(--border); padding-top: .4rem;
+  }
+  .risk-extra {
+    font-size: .75rem; color: var(--muted); margin-top: .55rem;
+  }
 </style>
 </head>
 <body>
@@ -132,7 +162,7 @@
 
   <div class="disclaimer">
     <strong>免責聲明 / Disclaimer：</strong>只供參考，非投資建議。For reference only — not investment advice.
-    狀態徽章為透明規則投票，非衰退機率模型。
+    「本站規則評估」由領先指標透明投票映射；「NY Fed 公開模型」係官方已發布模型，<strong>兩者都唔係本站預測</strong>。
   </div>
 
   <section class="badge-panel" id="badge-panel">
@@ -164,7 +194,9 @@
   </section>
 
   <footer>
-    <p>資料來源：<a href="https://fred.stlouisfed.org/" rel="noopener">FRED</a>；手動欄位見 Conference Board / ISM 公開新聞稿。</p>
+    <p>資料來源：<a href="https://fred.stlouisfed.org/" rel="noopener">FRED</a>；
+      <a href="https://www.newyorkfed.org/research/capital_markets/ycfaq" rel="noopener">NY Fed Yield Curve</a>；
+      手動欄位見 Conference Board / ISM 公開新聞稿。</p>
     <p>架構靈感（非複製模型權重／衰退%）：
       <a href="https://github.com/ianperaltahirujo/recession-probability-dashboard" rel="noopener">recession-probability-dashboard</a>（Actions→Pages+FRED）、
       <a href="https://github.com/ribromeu/US-Yield-Curve-Macro-Dashboard" rel="noopener">US-Yield-Curve-Macro-Dashboard</a>（MIT，曲線+HY OAS）。
@@ -250,10 +282,64 @@
       "</span>"
     ).join("");
 
+    const sr = data.site_risk || {};
+    const pp = (data.public_probs && data.public_probs.primary) || null;
+    const others = ((data.public_probs && data.public_probs.models) || []).filter(m => !m.primary);
+
+    function pctClass(p) {
+      if (p == null || isNaN(p)) return "mid";
+      if (p >= 40) return "high";
+      if (p >= 25) return "mid";
+      return "low";
+    }
+    function fmtPct(p) {
+      if (p == null || isNaN(p)) return "—";
+      return (Math.round(p * 10) / 10) + "%";
+    }
+
+    let nyHtml = '<div class="risk-card primary">' +
+      '<div class="tag">公開衰退概率（NY Fed）</div>';
+    if (pp) {
+      nyHtml += '<div class="pct ' + pctClass(pp.value_pct) + '">' + fmtPct(pp.value_pct) + "</div>" +
+        '<div class="sub">' + (pp.model_name_zh || pp.model_name || "") + "<br/>" +
+        "資料期 " + (pp.date || "—") +
+        (pp.horizon_label ? " · 對應前瞻標籤 " + pp.horizon_label : "") +
+        (pp.updated_on_source ? " · 來源更新 " + pp.updated_on_source : "") +
+        (pp.source_url ? ' · <a href="' + pp.source_url + '" rel="noopener" target="_blank">來源</a>' : "") +
+        (pp.chart_pdf_url ? ' · <a href="' + pp.chart_pdf_url + '" rel="noopener" target="_blank">PDF圖</a>' : "") +
+        "</div>" +
+        '<div class="formula">' + (pp.note_zh || "公開模型，非本站預測、非投資建議。") + "</div>";
+    } else {
+      nyHtml += '<div class="pct mid">—</div><div class="sub">暫未能擷取 NY Fed 公開模型</div>';
+    }
+    nyHtml += "</div>";
+
+    let siteHtml = '<div class="risk-card">' +
+      '<div class="tag">本站規則評估 · 衰退／急挫風險</div>' +
+      '<div class="pct ' + pctClass(sr.value_pct) + '">' + fmtPct(sr.value_pct) + "</div>" +
+      '<div class="sub">狀態 ' + (b.status || sr.status || "—") +
+      " · 得分 " + (sr.score != null ? sr.score : b.score) +
+      " / " + (sr.votes_cast != null ? sr.votes_cast : b.votes_cast || 0) + " 票</div>" +
+      '<div class="formula">' + (sr.formula_zh || "") + " " + (sr.note_zh || "") + "</div>" +
+      "</div>";
+
+    let extraHtml = "";
+    if (others.length) {
+      extraHtml = '<div class="risk-extra">其他公開模型（次要）：' +
+        others.map(m =>
+          (m.model_name_zh || m.model_name) + " <strong>" + fmtPct(m.value_pct) + "</strong>" +
+          "（" + (m.date || "") + "）" +
+          (m.source_url ? ' <a href="' + m.source_url + '" rel="noopener" target="_blank">FRED</a>' : "") +
+          " — " + (m.note_zh || "")
+        ).join("<br/>") + "</div>";
+    }
+
     panel.insertAdjacentHTML("beforeend",
       '<div class="badge ' + tone + '">' + (b.status || "—") +
       ' <span style="font-size:.85rem;font-weight:500;opacity:.85">/ ' + (b.status_en || "") + "</span></div>" +
-      '<div class="badge-meta">得分 ' + (b.score != null ? b.score : "—") +
+      '<div class="risk-row">' + siteHtml + nyHtml + "</div>" +
+      extraHtml +
+      '<div class="badge-meta" style="margin-top:.65rem">得分 ' + (b.score != null ? b.score : "—") +
       " / " + (b.votes_cast || 0) + " 票 · " + (b.rule_summary_zh || "") + "</div>" +
       '<div class="votes">' + votesHtml + "</div>"
     );

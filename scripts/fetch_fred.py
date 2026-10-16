@@ -12,6 +12,8 @@ Computes a transparent rule-based cycle badge (偏牛 / 偏熊 / 過渡).
 from __future__ import annotations
 
 import json
+import math
+import re
 import os
 import sys
 import urllib.error
@@ -25,6 +27,14 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 MANUAL_PATH = DOCS / "manual.json"
 OUT_PATH = DOCS / "data.json"
+PUBLIC_PROBS_PATH = DOCS / "public_probs.json"
+
+# NY Fed Treasury term-spread model (Estrella–Mishkin / NY Fed published chart).
+# Parameters from Prob_Rec.pdf footnote (est. Jan 1959–Dec 2009).
+NYFED_ALPHA = -0.5333
+NYFED_BETA = -0.6330
+NYFED_PAGE = "https://www.newyorkfed.org/research/capital_markets/ycfaq"
+NYFED_PDF = "https://www.newyorkfed.org/medialibrary/media/research/capital_markets/Prob_Rec.pdf"
 
 # Approx. history windows for sparklines (calendar days of lookback)
 SERIES = {
@@ -188,6 +198,284 @@ def load_manual() -> dict[str, Any]:
         return json.load(f)
 
 
+
+def _norm_cdf(x: float) -> float:
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+
+def _monthly_avg_last_complete(points: list[tuple[str, float]]) -> tuple[str, float] | None:
+    """Latest calendar month with at least one obs that is not the current incomplete month when possible."""
+    from collections import defaultdict
+
+    by_m: dict[str, list[float]] = defaultdict(list)
+    for d, v in points:
+        by_m[d[:7]].append(v)
+    if not by_m:
+        return None
+    months = sorted(by_m.keys())
+    now_ym = datetime.now(timezone.utc).strftime("%Y-%m")
+    # Prefer last fully closed month when current month has data too
+    if months[-1] == now_ym and len(months) >= 2:
+        ym = months[-2]
+    else:
+        ym = months[-1]
+    avg = sum(by_m[ym]) / len(by_m[ym])
+    return ym, avg
+
+
+def parse_nyfed_pdf() -> dict[str, Any] | None:
+    """Best-effort parse of official Prob_Rec.pdf for printed probability + as-of."""
+    try:
+        raw = _http_get(NYFED_PDF, timeout=45)
+    except Exception as e:
+        print(f"  NY Fed PDF fetch failed: {e}", file=sys.stderr)
+        return None
+    # Prefer pdftotext if present
+    txt = ""
+    try:
+        import subprocess
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as f:
+            f.write(raw)
+            pdf_path = f.name
+        r = subprocess.run(
+            ["pdftotext", "-layout", pdf_path, "-"],
+            capture_output=True,
+            timeout=30,
+        )
+        Path(pdf_path).unlink(missing_ok=True)
+        if r.returncode == 0:
+            txt = r.stdout.decode("utf-8", errors="replace")
+    except Exception:
+        txt = ""
+    if not txt:
+        # crude binary extract of printable runs
+        txt = re.sub(rb"[^\x20-\x7e\n]+", b" ", raw).decode("ascii", errors="ignore")
+
+    # e.g. "Sep 2027 = 12.7587%"  (horizon label year) and "through Sep 2026" / "Updated 04-Oct-2026"
+    prob_m = re.search(
+        r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})\s*=\s*([0-9]+(?:\.[0-9]+)?)\s*%",
+        txt,
+    )
+    # data-through month often appears near "data through"
+    through_m = re.search(
+        r"data through\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})",
+        txt,
+        re.I,
+    )
+    updated_m = re.search(
+        r"Updated\s+(\d{1,2})-([A-Za-z]{3})-(\d{4})",
+        txt,
+    )
+    spread_m = re.search(
+        r"(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})\s*=\s*(-?[0-9]+(?:\.[0-9]+)?)\s*(?!\s*%)",
+        txt,
+    )
+    if not prob_m:
+        return None
+    mon = {
+        "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "May": "05", "Jun": "06",
+        "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10", "Nov": "11", "Dec": "12",
+    }
+    # Probability chart labels the *horizon* month (data month + 12m)
+    horizon_mon, horizon_year, prob_s = prob_m.group(1), prob_m.group(2), prob_m.group(3)
+    value_pct = round(float(prob_s), 4)
+    if through_m:
+        data_ym = f"{through_m.group(2)}-{mon[through_m.group(1)]}"
+    else:
+        # infer: horizon − 12 months
+        hy, hm = int(horizon_year), int(mon[horizon_mon])
+        hm -= 12
+        while hm <= 0:
+            hm += 12
+            hy -= 1
+        data_ym = f"{hy}-{hm:02d}"
+    updated = None
+    if updated_m:
+        um = {k.lower(): v for k, v in {
+            "jan": "01", "feb": "02", "mar": "03", "apr": "04", "may": "05", "jun": "06",
+            "jul": "07", "aug": "08", "sep": "09", "oct": "10", "nov": "11", "dec": "12",
+        }.items()}
+        updated = f"{updated_m.group(3)}-{um[updated_m.group(2).lower()]}-{int(updated_m.group(1)):02d}"
+    spread = float(spread_m.group(3)) if spread_m else None
+    return {
+        "value_pct": value_pct,
+        "date": data_ym,
+        "horizon_label": f"{horizon_mon} {horizon_year}",
+        "updated_on_source": updated,
+        "spread_pp": spread,
+        "fetch_method": "nyfed_pdf",
+    }
+
+
+def compute_nyfed_from_fred(api_key: str | None) -> dict[str, Any]:
+    """Apply published NY Fed probit to FRED T10Y3M monthly average (not our invention)."""
+    start = (datetime.now(timezone.utc) - timedelta(days=400)).strftime("%Y-%m-%d")
+    if api_key:
+        try:
+            points = fetch_api_series("T10Y3M", api_key, start=start)
+        except Exception:
+            points = fetch_csv_series("T10Y3M", start=start)
+    else:
+        points = fetch_csv_series("T10Y3M", start=start)
+    got = _monthly_avg_last_complete(points)
+    if not got:
+        raise RuntimeError("T10Y3M: no monthly average")
+    ym, spread = got
+    z = NYFED_ALPHA + NYFED_BETA * spread
+    value_pct = round(_norm_cdf(z) * 100.0, 4)
+    # horizon = data month + 12m
+    y, m = int(ym[:4]), int(ym[5:7])
+    m += 12
+    while m > 12:
+        m -= 12
+        y += 1
+    months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    return {
+        "value_pct": value_pct,
+        "date": ym,
+        "horizon_label": f"{months[m]} {y}",
+        "spread_pp": round(spread, 5),
+        "updated_on_source": None,
+        "fetch_method": "nyfed_probit_t10y3m",
+        "fred_spread_id": "T10Y3M",
+        "parameters": {"alpha": NYFED_ALPHA, "beta": NYFED_BETA},
+    }
+
+
+def fetch_ny_fed_prob(api_key: str | None) -> dict[str, Any]:
+    """
+    Primary public model: NY Fed 12-month-ahead recession probability from 10y−3m spread.
+    Prefer official PDF print; fall back to same published formula on FRED T10Y3M.
+    """
+    computed = compute_nyfed_from_fred(api_key)
+    pdf = parse_nyfed_pdf()
+    chosen = computed
+    if pdf and abs(pdf["value_pct"] - computed["value_pct"]) < 0.5:
+        # Trust PDF when it matches the model within rounding/noise
+        chosen = {**computed, **{k: v for k, v in pdf.items() if v is not None}}
+        chosen["fetch_method"] = "nyfed_pdf+probit_check"
+        chosen["probit_crosscheck_pct"] = computed["value_pct"]
+    elif pdf:
+        # PDF available but diverges — still prefer PDF printed official chart
+        chosen = {**computed, **{k: v for k, v in pdf.items() if v is not None}}
+        chosen["fetch_method"] = "nyfed_pdf"
+        chosen["probit_crosscheck_pct"] = computed["value_pct"]
+        chosen["note_divergence"] = True
+
+    out = {
+        "id": "ny_fed_yield_curve",
+        "primary": True,
+        "value_pct": round(float(chosen["value_pct"]), 2),
+        "value_pct_raw": float(chosen["value_pct"]),
+        "date": chosen["date"],
+        "horizon_label": chosen.get("horizon_label"),
+        "model_name": "NY Fed — Probability of US Recession Predicted by Treasury Spread (10y−3m)",
+        "model_name_zh": "紐約聯儲 · 國債期限利差衰退概率（10年−3個月，12個月前瞻）",
+        "source_url": NYFED_PAGE,
+        "chart_pdf_url": NYFED_PDF,
+        "fred_related_url": "https://fred.stlouisfed.org/series/T10Y3M",
+        "updated_on_source": chosen.get("updated_on_source"),
+        "spread_pp": chosen.get("spread_pp"),
+        "fetch_method": chosen.get("fetch_method"),
+        "parameters": {"alpha": NYFED_ALPHA, "beta": NYFED_BETA, "sample": "1959-01 to 2009-12"},
+        "note_zh": "公開模型（NY Fed / Estrella–Mishkin 類期限利差 probit），非本站預測、非投資建議。官方 CSV/XLS 目前未提供；數值來自官方 PDF 圖表及／或以 FRED T10Y3M 月均套用其公開參數。",
+        "note_en": "Published NY Fed model, not this site's forecast. Not investment advice.",
+    }
+    if chosen.get("probit_crosscheck_pct") is not None:
+        out["probit_crosscheck_pct"] = chosen["probit_crosscheck_pct"]
+    return out
+
+
+def fetch_chauvet_piger(api_key: str | None) -> dict[str, Any]:
+    """Secondary: FRED RECPROUSM156N — smoothed *current* recession probability (Chauvet–Piger)."""
+    start = (datetime.now(timezone.utc) - timedelta(days=800)).strftime("%Y-%m-%d")
+    if api_key:
+        try:
+            points = fetch_api_series("RECPROUSM156N", api_key, start=start)
+        except Exception:
+            points = fetch_csv_series("RECPROUSM156N", start=start)
+    else:
+        points = fetch_csv_series("RECPROUSM156N", start=start)
+    d, v = points[-1]
+    return {
+        "id": "chauvet_piger_smoothed",
+        "primary": False,
+        "value_pct": round(float(v), 2),
+        "value_pct_raw": float(v),
+        "date": d[:7] if len(d) >= 7 else d,
+        "observation_date": d,
+        "model_name": "Smoothed U.S. Recession Probabilities (Chauvet–Piger)",
+        "model_name_zh": "平滑美國衰退概率（Chauvet–Piger，當前狀態）",
+        "source_url": "https://fred.stlouisfed.org/series/RECPROUSM156N",
+        "fred_id": "RECPROUSM156N",
+        "note_zh": "公開模型：估計「而家是否處於衰退」嘅平滑概率，唔係 12 個月前瞻。非本站預測、非投資建議。",
+        "note_en": "Published nowcast-style smoothed probability (not 12m-ahead). Not this site's forecast.",
+        "fetch_method": "fred_csv_or_api",
+    }
+
+
+def compute_site_risk(badge: dict[str, Any]) -> dict[str, Any]:
+    """
+    Map transparent vote score → 0–100 衰退／急挫風險%.
+
+    Equal-weight mapping of each vote:
+      +1 → 0%,  0 → 50%,  −1 → 100%
+    Equivalent closed form:
+      risk = 100 * (votes_cast − score) / (2 * votes_cast)
+    Then clamp to [cap_min, cap_max] so we never imply false certainty of 0% or 100%.
+    """
+    votes = badge.get("votes") or []
+    n = int(badge.get("votes_cast") or len(votes) or 0)
+    score = int(badge.get("score") or 0)
+    cap_min, cap_max = 5, 95
+    components = []
+    for v in votes:
+        vote = int(v.get("vote") or 0)
+        if vote > 0:
+            r = 0.0
+        elif vote < 0:
+            r = 100.0
+        else:
+            r = 50.0
+        components.append({"name": v.get("name"), "vote": vote, "risk_contrib": r, "detail": v.get("detail")})
+    if n <= 0:
+        raw = 50.0
+        formula_used = "no_votes→50"
+    else:
+        raw = 100.0 * (n - score) / (2.0 * n)
+        formula_used = "100*(n-score)/(2*n)"
+    clamped = max(cap_min, min(cap_max, raw))
+    return {
+        "id": "site_rule_risk",
+        "label_zh": "本站規則評估 · 衰退／急挫風險",
+        "label_en": "Site rule-based recession/crash risk",
+        "value_pct": round(clamped, 1),
+        "value_pct_raw": round(raw, 4),
+        "score": score,
+        "votes_cast": n,
+        "status": badge.get("status"),
+        "status_en": badge.get("status_en"),
+        "tone": badge.get("tone"),
+        "cap_min": cap_min,
+        "cap_max": cap_max,
+        "formula_zh": (
+            "各訊號票等權：+1→0%、0→50%、−1→100%，再平均；"
+            f"等價式 risk = 100×(票數−得分)/(2×票數)，再夾喺 {cap_min}–{cap_max}。"
+            "透明規則，非 ML、非 NY Fed 模型。"
+        ),
+        "formula_en": (
+            "Equal-weight: +1→0%, 0→50%, −1→100%, then average; "
+            f"equiv. 100*(n-score)/(2*n), clamped to [{cap_min},{cap_max}]. Not ML."
+        ),
+        "formula_used": formula_used,
+        "components": components,
+        "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、唔係投資建議。",
+        "note_en": "Mapped from the same on-page votes — not a calibrated probability. Not investment advice.",
+    }
+
+
 def compute_badge(fred: dict[str, Any], manual: dict[str, Any]) -> dict[str, Any]:
     """
     Transparent rule-based status. Each signal votes +1 (偏牛), -1 (偏熊), 0 (中性).
@@ -349,22 +637,68 @@ def main() -> int:
 
     manual = load_manual()
     badge = compute_badge(fred, manual)
+    site_risk = compute_site_risk(badge)
     now_hkt = datetime.now(HKT).strftime("%Y-%m-%d %H:%M HKT")
+
+    public_models: list[dict[str, Any]] = []
+    public_probs: dict[str, Any] = {
+        "generated_at": now_hkt,
+        "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
+        "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
+        "models": [],
+        "site_risk": site_risk,
+    }
+
+    print("Fetching NY Fed recession probability...")
+    try:
+        ny = fetch_ny_fed_prob(api_key)
+        public_models.append(ny)
+        print(f"  → NY Fed {ny['value_pct']}% as-of {ny['date']} [{ny['fetch_method']}]")
+    except Exception as e:
+        msg = f"ny_fed_prob: {e}"
+        print(f"  ERROR {msg}", file=sys.stderr)
+        errors.append(msg)
+
+    print("Fetching Chauvet–Piger (RECPROUSM156N)...")
+    try:
+        cp = fetch_chauvet_piger(api_key)
+        public_models.append(cp)
+        print(f"  → Chauvet–Piger {cp['value_pct']}% as-of {cp['date']}")
+    except Exception as e:
+        msg = f"RECPROUSM156N: {e}"
+        print(f"  ERROR {msg}", file=sys.stderr)
+        errors.append(msg)
+
+    public_probs["models"] = public_models
+    primary = next((m for m in public_models if m.get("primary")), public_models[0] if public_models else None)
 
     payload = {
         "generated_at": now_hkt,
         "generated_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "fetch_mode": mode,
         "badge": badge,
+        "site_risk": site_risk,
+        "public_probs": {
+            "primary": primary,
+            "models": public_models,
+            "disclaimer_zh": public_probs["disclaimer_zh"],
+            "disclaimer_en": public_probs["disclaimer_en"],
+        },
         "fred": fred,
         "manual": manual,
         "errors": errors,
-        "disclaimer_zh": "只供參考，非投資建議。",
-        "disclaimer_en": "For reference only. Not investment advice.",
+        "disclaimer_zh": "只供參考，非投資建議。公開衰退概率係官方／FRED 已發布模型，唔係本站預測。",
+        "disclaimer_en": "For reference only. Not investment advice. Public recession probs are published models, not this site's forecast.",
     }
 
     OUT_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote {OUT_PATH} (badge={badge['status']}, series={len(fred)}, errors={len(errors)})")
+    PUBLIC_PROBS_PATH.write_text(json.dumps(public_probs, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(
+        f"Wrote {OUT_PATH} + {PUBLIC_PROBS_PATH} "
+        f"(badge={badge['status']}, site_risk={site_risk['value_pct']}%, "
+        f"series={len(fred)}, public_models={len(public_models)}, errors={len(errors)})"
+    )
     return 0 if fred else 1
 
 

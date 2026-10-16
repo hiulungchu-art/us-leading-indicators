@@ -1,0 +1,97 @@
+{
+  "generated_at": "2026-10-16 12:56 HKT",
+  "generated_at_utc": "2026-10-16T04:56:44Z",
+  "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
+  "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
+  "models": [
+    {
+      "id": "ny_fed_yield_curve",
+      "primary": true,
+      "value_pct": 12.76,
+      "value_pct_raw": 12.7587,
+      "date": "2026-09",
+      "horizon_label": "Sep 2027",
+      "model_name": "NY Fed — Probability of US Recession Predicted by Treasury Spread (10y−3m)",
+      "model_name_zh": "紐約聯儲 · 國債期限利差衰退概率（10年−3個月，12個月前瞻）",
+      "source_url": "https://www.newyorkfed.org/research/capital_markets/ycfaq",
+      "chart_pdf_url": "https://www.newyorkfed.org/medialibrary/media/research/capital_markets/Prob_Rec.pdf",
+      "fred_related_url": "https://fred.stlouisfed.org/series/T10Y3M",
+      "updated_on_source": "2026-10-04",
+      "spread_pp": 0.95509,
+      "fetch_method": "nyfed_pdf",
+      "parameters": {
+        "alpha": -0.5333,
+        "beta": -0.633,
+        "sample": "1959-01 to 2009-12"
+      },
+      "note_zh": "公開模型（NY Fed / Estrella–Mishkin 類期限利差 probit），非本站預測、非投資建議。官方 CSV/XLS 目前未提供；數值來自官方 PDF 圖表及／或以 FRED T10Y3M 月均套用其公開參數。",
+      "note_en": "Published NY Fed model, not this site's forecast. Not investment advice."
+    },
+    {
+      "id": "chauvet_piger_smoothed",
+      "primary": false,
+      "value_pct": 0.62,
+      "value_pct_raw": 0.62,
+      "date": "2026-08",
+      "observation_date": "2026-08-01",
+      "model_name": "Smoothed U.S. Recession Probabilities (Chauvet–Piger)",
+      "model_name_zh": "平滑美國衰退概率（Chauvet–Piger，當前狀態）",
+      "source_url": "https://fred.stlouisfed.org/series/RECPROUSM156N",
+      "fred_id": "RECPROUSM156N",
+      "note_zh": "公開模型：估計「而家是否處於衰退」嘅平滑概率，唔係 12 個月前瞻。非本站預測、非投資建議。",
+      "note_en": "Published nowcast-style smoothed probability (not 12m-ahead). Not this site's forecast.",
+      "fetch_method": "fred_csv_or_api"
+    }
+  ],
+  "site_risk": {
+    "id": "site_rule_risk",
+    "label_zh": "本站規則評估 · 衰退／急挫風險",
+    "label_en": "Site rule-based recession/crash risk",
+    "value_pct": 20.0,
+    "value_pct_raw": 20.0,
+    "score": 3,
+    "votes_cast": 5,
+    "status": "偏牛",
+    "status_en": "Lean bullish",
+    "tone": "bull",
+    "cap_min": 5,
+    "cap_max": 95,
+    "formula_zh": "各訊號票等權：+1→0%、0→50%、−1→100%，再平均；等價式 risk = 100×(票數−得分)/(2×票數)，再夾喺 5–95。透明規則，非 ML、非 NY Fed 模型。",
+    "formula_en": "Equal-weight: +1→0%, 0→50%, −1→100%, then average; equiv. 100*(n-score)/(2*n), clamped to [5,95]. Not ML.",
+    "formula_used": "100*(n-score)/(2*n)",
+    "components": [
+      {
+        "name": "2s10s",
+        "vote": 1,
+        "risk_contrib": 0.0,
+        "detail": "+0.33 pp 正斜率"
+      },
+      {
+        "name": "ISM PMI",
+        "vote": 1,
+        "risk_contrib": 0.0,
+        "detail": "54.5 ≥ 52 擴張"
+      },
+      {
+        "name": "失業救濟",
+        "vote": 1,
+        "risk_contrib": 0.0,
+        "detail": "198,500 低位穩定"
+      },
+      {
+        "name": "HY OAS",
+        "vote": -1,
+        "risk_contrib": 100.0,
+        "detail": "3.25%（走闊）"
+      },
+      {
+        "name": "標普500",
+        "vote": 1,
+        "risk_contrib": 0.0,
+        "detail": "相對近期 +4.4%"
+      }
+    ],
+    "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、唔係投資建議。",
+    "note_en": "Mapped from the same on-page votes — not a calibrated probability. Not investment advice."
+  }
+}
