@@ -104,6 +104,30 @@ gh api repos/hiulungchu-art/us-leading-indicators/pages \
   -X POST -f build_type=legacy -f source[branch]=main -f source[path]=/docs
 ```
 
+
+## GitHub Actions workflow
+
+The authenticated `gh` token on this box lacks the **`workflow`** OAuth scope, so
+`.github/workflows/update.yml` could not be pushed automatically.
+
+**Install once (GitHub web UI):**
+
+1. Open https://github.com/hiulungchu-art/us-leading-indicators/new/main?filename=.github/workflows/update.yml  
+2. Paste the contents of [`actions/update.yml`](actions/update.yml)  
+3. Commit  
+
+**Or** re-authorize `gh` with `workflow` scope, then:
+
+```bash
+mkdir -p .github/workflows
+cp actions/update.yml .github/workflows/update.yml
+git add .github/workflows/update.yml
+git commit -m "Add FRED update workflow"
+git push
+```
+
+After the workflow exists, optionally add secret `FRED_API_KEY` (see above).
+
 ## Disclaimer
 
 Educational / personal dashboard. **只供參考，非投資建議.**
