@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-20 02:56 HKT",
-  "generated_at_utc": "2026-10-19T18:56:22Z",
+  "generated_at": "2026-10-21 01:42 HKT",
+  "generated_at_utc": "2026-10-20T17:42:08Z",
   "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
   "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
   "models": [
@@ -47,9 +47,9 @@
     "id": "site_rule_risk",
     "label_zh": "本站規則評估 · 衰退／急挫風險",
     "label_en": "Site rule-based recession/crash risk",
-    "value_pct": 30.0,
-    "value_pct_raw": 30.0,
-    "score": 2,
+    "value_pct": 20.0,
+    "value_pct_raw": 20.0,
+    "score": 3,
     "votes_cast": 5,
     "status": "偏牛",
     "status_en": "Lean bullish",
@@ -64,7 +64,7 @@
         "name": "2s10s",
         "vote": 1,
         "risk_contrib": 0.0,
-        "detail": "+0.35 pp 正斜率"
+        "detail": "+0.38 pp 正斜率"
       },
       {
         "name": "ISM PMI",
@@ -82,13 +82,13 @@
         "name": "HY OAS",
         "vote": -1,
         "risk_contrib": 100.0,
-        "detail": "3.31%（走闊）"
+        "detail": "3.29%（走闊）"
       },
       {
         "name": "標普500",
-        "vote": 0,
-        "risk_contrib": 50.0,
-        "detail": "相對近期 +2.5%"
+        "vote": 1,
+        "risk_contrib": 0.0,
+        "detail": "相對近期 +4.4%"
       }
     ],
     "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、未做歷史股災回測，唔係投資建議。",
@@ -110,7 +110,7 @@
       "t10y3m": "eco3min_fred_mirror",
       "recpro": "local_fred_cache"
     },
-    "site_risk_note_zh": "本站規則評估而家 30.0% 係領先指標投票映射，唔係概率校準、未做股災回測，所以對照表只放 NY Fed / Chauvet–Piger 公開模型。",
+    "site_risk_note_zh": "本站規則評估而家 20.0% 係領先指標投票映射，唔係概率校準、未做股災回測，所以對照表只放 NY Fed / Chauvet–Piger 公開模型。",
     "site_risk_note_en": "Site rule risk is a transparent vote mapping — not a calibrated probability and not backtested to crashes. Crash history table covers published models only.",
     "rows": [
       {
@@ -541,6 +541,6 @@
       "nyfed_alpha": -0.5333,
       "nyfed_beta": -0.633
     },
-    "site_risk_current_pct": 30.0
+    "site_risk_current_pct": 20.0
   }
 }
