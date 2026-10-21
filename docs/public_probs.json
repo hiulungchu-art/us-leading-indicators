@@ -1,39 +1,16 @@
 {
-  "generated_at": "2026-10-21 01:42 HKT",
-  "generated_at_utc": "2026-10-20T17:42:08Z",
+  "generated_at": "2026-10-22 01:48 HKT",
+  "generated_at_utc": "2026-10-21T17:48:53Z",
   "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
   "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
   "models": [
     {
-      "id": "ny_fed_yield_curve",
-      "primary": true,
-      "value_pct": 13.55,
-      "value_pct_raw": 13.5538,
-      "date": "2026-09",
-      "horizon_label": "Sep 2027",
-      "model_name": "NY Fed — Probability of US Recession Predicted by Treasury Spread (10y−3m)",
-      "model_name_zh": "紐約聯儲 · 國債期限利差衰退概率（10年−3個月，12個月前瞻）",
-      "source_url": "https://www.newyorkfed.org/research/capital_markets/ycfaq",
-      "chart_pdf_url": "https://www.newyorkfed.org/medialibrary/media/research/capital_markets/Prob_Rec.pdf",
-      "fred_related_url": "https://fred.stlouisfed.org/series/T10Y3M",
-      "updated_on_source": null,
-      "spread_pp": 0.89619,
-      "fetch_method": "nyfed_probit_t10y3m",
-      "parameters": {
-        "alpha": -0.5333,
-        "beta": -0.633,
-        "sample": "1959-01 to 2009-12"
-      },
-      "note_zh": "公開模型（NY Fed / Estrella–Mishkin 類期限利差 probit），非本站預測、非投資建議。官方 CSV/XLS 目前未提供；數值來自官方 PDF 圖表及／或以 FRED T10Y3M 月均套用其公開參數。",
-      "note_en": "Published NY Fed model, not this site's forecast. Not investment advice."
-    },
-    {
       "id": "chauvet_piger_smoothed",
       "primary": false,
-      "value_pct": 0.62,
-      "value_pct_raw": 0.62,
-      "date": "2026-08",
-      "observation_date": "2026-08-01",
+      "value_pct": 400.0,
+      "value_pct_raw": 400.0,
+      "date": "<link h",
+      "observation_date": "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans:300",
       "model_name": "Smoothed U.S. Recession Probabilities (Chauvet–Piger)",
       "model_name_zh": "平滑美國衰退概率（Chauvet–Piger，當前狀態）",
       "source_url": "https://fred.stlouisfed.org/series/RECPROUSM156N",
@@ -47,13 +24,13 @@
     "id": "site_rule_risk",
     "label_zh": "本站規則評估 · 衰退／急挫風險",
     "label_en": "Site rule-based recession/crash risk",
-    "value_pct": 20.0,
-    "value_pct_raw": 20.0,
-    "score": 3,
-    "votes_cast": 5,
-    "status": "偏牛",
-    "status_en": "Lean bullish",
-    "tone": "bull",
+    "value_pct": 37.5,
+    "value_pct_raw": 37.5,
+    "score": 1,
+    "votes_cast": 4,
+    "status": "過渡",
+    "status_en": "Transitional",
+    "tone": "neutral",
     "cap_min": 5,
     "cap_max": 95,
     "formula_zh": "各訊號票等權：+1→0%、0→50%、−1→100%，再平均；等價式 risk = 100×(票數−得分)/(2×票數)，再夾喺 5–95。透明規則，非 ML、非 NY Fed 模型。",
@@ -64,7 +41,7 @@
         "name": "2s10s",
         "vote": 1,
         "risk_contrib": 0.0,
-        "detail": "+0.38 pp 正斜率"
+        "detail": "+400.00 pp 正斜率"
       },
       {
         "name": "ISM PMI",
@@ -73,22 +50,16 @@
         "detail": "54.5 ≥ 52 擴張"
       },
       {
-        "name": "失業救濟",
-        "vote": 1,
-        "risk_contrib": 0.0,
-        "detail": "198,500 低位穩定"
-      },
-      {
         "name": "HY OAS",
         "vote": -1,
         "risk_contrib": 100.0,
-        "detail": "3.29%（走闊）"
+        "detail": "400.00%（走闊）"
       },
       {
         "name": "標普500",
-        "vote": 1,
-        "risk_contrib": 0.0,
-        "detail": "相對近期 +4.4%"
+        "vote": 0,
+        "risk_contrib": 50.0,
+        "detail": "相對近期 +0.0%"
       }
     ],
     "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、未做歷史股災回測，唔係投資建議。",
@@ -110,7 +81,7 @@
       "t10y3m": "eco3min_fred_mirror",
       "recpro": "local_fred_cache"
     },
-    "site_risk_note_zh": "本站規則評估而家 20.0% 係領先指標投票映射，唔係概率校準、未做股災回測，所以對照表只放 NY Fed / Chauvet–Piger 公開模型。",
+    "site_risk_note_zh": "本站規則評估而家 37.5% 係領先指標投票映射，唔係概率校準、未做股災回測，所以對照表只放 NY Fed / Chauvet–Piger 公開模型。",
     "site_risk_note_en": "Site rule risk is a transparent vote mapping — not a calibrated probability and not backtested to crashes. Crash history table covers published models only.",
     "rows": [
       {
@@ -119,23 +90,18 @@
         "label_zh": "而家",
         "label_en": "Now",
         "role": "current",
-        "target_ym": "2026-09",
+        "target_ym": "<link h",
         "context_zh": "最新公開模型讀數",
         "show_in_main_table": true,
         "ny_fed": {
-          "available": true,
-          "value_pct": 13.55,
-          "value_pct_raw": 13.5538,
-          "obs_ym": "2026-09",
-          "spread_pp": 0.89619,
-          "method": "nyfed_probit_t10y3m",
-          "source_note": "Official NY Fed chart / same published α/β"
+          "available": false,
+          "reason": "live_ny_unavailable"
         },
         "chauvet_piger": {
           "available": true,
-          "value_pct": 0.62,
-          "value_pct_raw": 0.62,
-          "obs_ym": "2026-08",
+          "value_pct": 400.0,
+          "value_pct_raw": 400.0,
+          "obs_ym": "<link h",
           "method": "fred_csv_or_api",
           "source_note": "FRED RECPROUSM156N"
         }
@@ -541,6 +507,6 @@
       "nyfed_alpha": -0.5333,
       "nyfed_beta": -0.633
     },
-    "site_risk_current_pct": 20.0
+    "site_risk_current_pct": 37.5
   }
 }
