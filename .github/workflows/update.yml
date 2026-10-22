@@ -22,6 +22,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install pdftotext (NY Fed Prob_Rec.pdf)
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+
       - name: Fetch FRED → docs JSON
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
