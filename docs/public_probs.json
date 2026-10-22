@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-10-22 12:25 HKT",
-  "generated_at_utc": "2026-10-22T04:25:23Z",
+  "generated_at": "2026-10-22 12:26 HKT",
+  "generated_at_utc": "2026-10-22T04:26:56Z",
   "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
   "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
   "models": [
     {
       "id": "ny_fed_yield_curve",
       "primary": true,
-      "value_pct": 13.55,
-      "value_pct_raw": 13.5538,
+      "value_pct": 12.76,
+      "value_pct_raw": 12.7587,
       "date": "2026-09",
       "horizon_label": "Sep 2027",
       "model_name": "NY Fed — Probability of US Recession Predicted by Treasury Spread (10y−3m)",
@@ -16,16 +16,17 @@
       "source_url": "https://www.newyorkfed.org/research/capital_markets/ycfaq",
       "chart_pdf_url": "https://www.newyorkfed.org/medialibrary/media/research/capital_markets/Prob_Rec.pdf",
       "fred_related_url": "https://fred.stlouisfed.org/series/T10Y3M",
-      "updated_on_source": null,
-      "spread_pp": 0.89619,
-      "fetch_method": "nyfed_probit_t10y3m:fed_h15_derived",
+      "updated_on_source": "2026-10-04",
+      "spread_pp": 0.95509,
+      "fetch_method": "nyfed_pdf",
       "parameters": {
         "alpha": -0.5333,
         "beta": -0.633,
         "sample": "1959-01 to 2009-12"
       },
       "note_zh": "公開模型（NY Fed / Estrella–Mishkin 類期限利差 probit），非本站預測、非投資建議。官方 CSV/XLS 目前未提供；數值來自官方 PDF 圖表及／或以 FRED T10Y3M 月均套用其公開參數。",
-      "note_en": "Published NY Fed model, not this site's forecast. Not investment advice."
+      "note_en": "Published NY Fed model, not this site's forecast. Not investment advice.",
+      "probit_crosscheck_pct": 13.5538
     },
     {
       "id": "chauvet_piger_smoothed",
@@ -124,11 +125,11 @@
         "show_in_main_table": true,
         "ny_fed": {
           "available": true,
-          "value_pct": 13.55,
-          "value_pct_raw": 13.5538,
+          "value_pct": 12.76,
+          "value_pct_raw": 12.7587,
           "obs_ym": "2026-09",
-          "spread_pp": 0.89619,
-          "method": "nyfed_probit_t10y3m:fed_h15_derived",
+          "spread_pp": 0.95509,
+          "method": "nyfed_pdf",
           "source_note": "Official NY Fed chart / same published α/β"
         },
         "chauvet_piger": {
