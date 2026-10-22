@@ -27,6 +27,45 @@ jobs:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python scripts/fetch_fred.py
 
+      - name: Sanity-check JSON (never commit HTML 400 artifacts)
+        run: |
+          python - <<'PY'
+          import json, sys
+          from pathlib import Path
+
+          def fail(msg: str) -> None:
+              print(msg, file=sys.stderr)
+              sys.exit(1)
+
+          data = json.loads(Path("docs/data.json").read_text(encoding="utf-8"))
+          probs = json.loads(Path("docs/public_probs.json").read_text(encoding="utf-8"))
+
+          for sid, row in (data.get("fred") or {}).items():
+              date = str(row.get("date") or "")
+              val = row.get("value")
+              if "<" in date or "link" in date.lower() or "font" in date.lower():
+                  fail(f"corrupt date for {sid}: {date!r}")
+              if not isinstance(val, (int, float)):
+                  fail(f"non-numeric {sid}: {val!r}")
+              # CSS font-weight 400 artifact
+              if sid in ("T10Y2Y", "T10YFF", "BAMLH0A0HYM2", "DFF", "UNRATE") and float(val) >= 50:
+                  fail(f"implausible {sid}={val}")
+
+          for m in probs.get("models") or []:
+              v = float(m.get("value_pct"))
+              d = str(m.get("date") or "")
+              if not (0.0 <= v <= 100.0):
+                  fail(f"model {m.get('id')} value_pct={v} outside 0–100")
+              if "<" in d or "link" in d.lower():
+                  fail(f"model {m.get('id')} corrupt date {d!r}")
+
+          site = (probs.get("site_risk") or data.get("site_risk") or {}).get("value_pct")
+          if site is not None and not (0.0 <= float(site) <= 100.0):
+              fail(f"site_risk={site} outside 0–100")
+
+          print("sanity OK", data.get("generated_at"), "models=", len(probs.get("models") or []))
+          PY
+
       - name: Commit if changed
         run: |
           git config user.name "github-actions[bot]"

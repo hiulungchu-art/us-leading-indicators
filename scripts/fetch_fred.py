@@ -56,43 +56,158 @@ SERIES = {
 HKT = timezone(timedelta(hours=8))
 
 
-def _http_get(url: str, timeout: int = 60) -> bytes:
-    req = urllib.request.Request(
-        url,
-        headers={"User-Agent": "us-leading-indicators/1.0 (GitHub Pages; educational)"},
+DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_re_ym = re.compile(r"^\d{4}-\d{2}$")
+USER_AGENT = "us-leading-indicators/1.0 (GitHub Pages; educational; +https://github.com/hiulungchu-art/us-leading-indicators)"
+
+# Set after first confirmed FRED HTML/maintenance response; skip further FRED hits in this run.
+_FRED_MAINTENANCE = False
+
+
+# Sanity ranges: reject HTML-parse artifacts (e.g. CSS "400") and other garbage.
+VALUE_RANGES: dict[str, tuple[float, float]] = {
+    "T10Y2Y": (-10.0, 10.0),
+    "T10YFF": (-15.0, 15.0),
+    "T10Y3M": (-15.0, 15.0),
+    "DFF": (0.0, 30.0),
+    "ICSA": (50_000.0, 2_000_000.0),
+    "IC4WSA": (50_000.0, 2_000_000.0),
+    "BAMLH0A0HYM2": (0.0, 30.0),
+    "PERMIT": (200.0, 5000.0),
+    "HOUST": (200.0, 5000.0),
+    "UMCSENT": (20.0, 120.0),
+    "SP500": (100.0, 50_000.0),
+    "UNRATE": (0.0, 30.0),
+    "PAYEMS": (50_000.0, 300_000.0),
+    "RECPROUSM156N": (0.0, 100.0),
+}
+
+
+def _looks_like_html(text: str) -> bool:
+    head = text.lstrip()[:300].lower()
+    return (
+        head.startswith("<!doctype")
+        or head.startswith("<html")
+        or "<html" in head
+        or "site maintenance" in head
+        or "fonts.googleapis.com" in head
     )
+
+
+def _http_get(url: str, timeout: int = 60) -> tuple[bytes, str]:
+    """GET bytes + content-type. Raises if body looks like an HTML error/maintenance page."""
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/csv,application/json,*/*"})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read()
+        ctype = (resp.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+        raw = resp.read()
+    # Soft content-type check: FRED CSV sometimes omits type; always sniff body.
+    text_head = raw[:800].decode("utf-8", errors="replace")
+    if "text/html" in ctype or _looks_like_html(text_head):
+        raise RuntimeError(f"HTML response (not data) from {url.split('?', 1)[0]} ctype={ctype!r}")
+    return raw, ctype
 
 
-def fetch_csv_series(series_id: str, start: str | None = None) -> list[tuple[str, float]]:
-    """Keyless FRED graph CSV. Returns [(date_iso, value), ...] oldest→newest, drops blanks."""
-    params = {"id": series_id}
-    if start:
-        params["cosd"] = start
-    url = "https://fred.stlouisfed.org/graph/fredgraph.csv?" + urllib.parse.urlencode(params)
-    raw = _http_get(url).decode("utf-8", errors="replace")
+def _parse_fred_csv_text(series_id: str, raw: str) -> list[tuple[str, float]]:
+    """Parse FRED-style CSV; require DATE/observation_date header and YYYY-MM-DD dates."""
+    if _looks_like_html(raw):
+        raise RuntimeError(f"{series_id}: got HTML instead of CSV")
     lines = [ln.strip() for ln in raw.splitlines() if ln.strip()]
     if len(lines) < 2:
         raise RuntimeError(f"{series_id}: empty CSV")
+    header = lines[0].lower()
+    # Real FRED CSV starts with observation_date,<id> or DATE,<id>
+    if not (
+        header.startswith("observation_date")
+        or header.startswith("date,")
+        or header.startswith('"observation_date"')
+        or header.startswith('"date"')
+    ):
+        raise RuntimeError(f"{series_id}: bad CSV header {lines[0][:80]!r}")
+    if series_id.upper() not in lines[0].upper() and "DATE" not in lines[0].upper() and "observation_date" not in header:
+        # header may be DATE,VALUE without series id — still OK if date-like
+        pass
     out: list[tuple[str, float]] = []
+    lo_hi = VALUE_RANGES.get(series_id)
     for ln in lines[1:]:
         parts = ln.split(",")
         if len(parts) < 2:
             continue
-        d, v = parts[0].strip(), parts[1].strip()
+        d, v = parts[0].strip().strip('"'), parts[1].strip().strip('"')
+        if not DATE_RE.match(d):
+            continue  # skip non-date rows (never treat HTML fragments as dates)
         if not v or v.upper() == ".":
             continue
         try:
-            out.append((d, float(v)))
+            fv = float(v)
         except ValueError:
             continue
+        if lo_hi is not None and not (lo_hi[0] <= fv <= lo_hi[1]):
+            continue
+        out.append((d, fv))
     if not out:
-        raise RuntimeError(f"{series_id}: no numeric observations")
+        raise RuntimeError(f"{series_id}: no valid numeric observations in CSV")
     return out
 
 
+def _validate_points(series_id: str, points: list[tuple[str, float]]) -> list[tuple[str, float]]:
+    lo_hi = VALUE_RANGES.get(series_id)
+    out: list[tuple[str, float]] = []
+    for d, v in points:
+        if not DATE_RE.match(d):
+            continue
+        if lo_hi is not None and not (lo_hi[0] <= v <= lo_hi[1]):
+            continue
+        out.append((d, v))
+    if not out:
+        raise RuntimeError(f"{series_id}: all observations failed sanity checks")
+    return out
+
+
+def clamp_recession_pct(value: float, label: str = "recession_pct") -> float:
+    """Recession probabilities must be 0–100. Never allow HTML '400' artifacts through."""
+    v = float(value)
+    if not (0.0 <= v <= 100.0) or math.isnan(v) or math.isinf(v):
+        raise RuntimeError(f"{label}: value {v!r} outside 0–100")
+    return v
+
+
+def fetch_csv_series(series_id: str, start: str | None = None) -> list[tuple[str, float]]:
+    """Keyless FRED graph CSV (+ mirror). Returns [(date_iso, value), ...] oldest→newest."""
+    global _FRED_MAINTENANCE
+    if _FRED_MAINTENANCE:
+        raise RuntimeError(f"{series_id}: skipped — FRED site maintenance this run")
+    params = {"id": series_id}
+    if start:
+        params["cosd"] = start
+    qs = urllib.parse.urlencode(params)
+    urls = [
+        "https://fred.stlouisfed.org/graph/fredgraph.csv?" + qs,
+        "https://fred.mino.mobi/?" + qs,
+    ]
+    errors: list[str] = []
+    for url in urls:
+        try:
+            raw, _ctype = _http_get(url, timeout=12)
+            return _parse_fred_csv_text(series_id, raw.decode("utf-8", errors="replace"))
+        except Exception as e:
+            err = str(e)
+            errors.append(f"{url.split('?',1)[0]}: {e}")
+            if "HTML response" in err or "maintenance" in err.lower():
+                _FRED_MAINTENANCE = True
+                # Don't burn minutes on curl/mino once FRED itself is in maintenance.
+                raise RuntimeError(f"{series_id}: CSV fetch failed — " + " | ".join(errors)) from e
+    # curl --http1.1 sometimes bypasses flaky stacks (only when not clearly maintenance)
+    try:
+        return _curl_fred_csv(series_id, start=start, timeout=12)
+    except Exception as e:
+        errors.append(f"curl: {e}")
+    raise RuntimeError(f"{series_id}: CSV fetch failed — " + " | ".join(errors))
+
+
 def fetch_api_series(series_id: str, api_key: str, start: str | None = None) -> list[tuple[str, float]]:
+    global _FRED_MAINTENANCE
+    if _FRED_MAINTENANCE:
+        raise RuntimeError(f"{series_id}: skipped — FRED site maintenance this run")
     params = {
         "series_id": series_id,
         "api_key": api_key,
@@ -102,19 +217,36 @@ def fetch_api_series(series_id: str, api_key: str, start: str | None = None) -> 
     if start:
         params["observation_start"] = start
     url = "https://api.stlouisfed.org/fred/series/observations?" + urllib.parse.urlencode(params)
-    data = json.loads(_http_get(url).decode("utf-8"))
+    raw, ctype = _http_get(url)
+    text = raw.decode("utf-8", errors="replace")
+    if _looks_like_html(text) or "text/html" in ctype:
+        _FRED_MAINTENANCE = True
+        raise RuntimeError(f"{series_id}: API returned HTML (maintenance?)")
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"{series_id}: API JSON parse failed: {e}") from e
+    if "error_code" in data or "error_message" in data:
+        raise RuntimeError(f"{series_id}: API error {data.get('error_code')} {data.get('error_message')}")
     obs = data.get("observations") or []
     out: list[tuple[str, float]] = []
+    lo_hi = VALUE_RANGES.get(series_id)
     for o in obs:
         v = (o.get("value") or "").strip()
+        d = (o.get("date") or "").strip()
+        if not DATE_RE.match(d):
+            continue
         if not v or v == ".":
             continue
         try:
-            out.append((o["date"], float(v)))
-        except (ValueError, KeyError):
+            fv = float(v)
+        except ValueError:
             continue
+        if lo_hi is not None and not (lo_hi[0] <= fv <= lo_hi[1]):
+            continue
+        out.append((d, fv))
     if not out:
-        raise RuntimeError(f"{series_id}: API returned no observations")
+        raise RuntimeError(f"{series_id}: API returned no valid observations")
     return out
 
 
@@ -227,7 +359,7 @@ def _monthly_avg_last_complete(points: list[tuple[str, float]]) -> tuple[str, fl
 def parse_nyfed_pdf() -> dict[str, Any] | None:
     """Best-effort parse of official Prob_Rec.pdf for printed probability + as-of."""
     try:
-        raw = _http_get(NYFED_PDF, timeout=45)
+        raw, _ctype = _http_get(NYFED_PDF, timeout=45)
     except Exception as e:
         print(f"  NY Fed PDF fetch failed: {e}", file=sys.stderr)
         return None
@@ -281,7 +413,7 @@ def parse_nyfed_pdf() -> dict[str, Any] | None:
     }
     # Probability chart labels the *horizon* month (data month + 12m)
     horizon_mon, horizon_year, prob_s = prob_m.group(1), prob_m.group(2), prob_m.group(3)
-    value_pct = round(float(prob_s), 4)
+    value_pct = clamp_recession_pct(round(float(prob_s), 4), "nyfed_pdf")
     if through_m:
         data_ym = f"{through_m.group(2)}-{mon[through_m.group(1)]}"
     else:
@@ -313,19 +445,46 @@ def parse_nyfed_pdf() -> dict[str, Any] | None:
 def compute_nyfed_from_fred(api_key: str | None) -> dict[str, Any]:
     """Apply published NY Fed probit to FRED T10Y3M monthly average (not our invention)."""
     start = (datetime.now(timezone.utc) - timedelta(days=400)).strftime("%Y-%m-%d")
+    points = None
+    src = "fred"
+    errors: list[str] = []
     if api_key:
         try:
             points = fetch_api_series("T10Y3M", api_key, start=start)
-        except Exception:
+            src = "fred_api"
+        except Exception as e:
+            errors.append(f"api:{e}")
+    if points is None:
+        try:
             points = fetch_csv_series("T10Y3M", start=start)
-    else:
-        points = fetch_csv_series("T10Y3M", start=start)
+            src = "fred_csv"
+        except Exception as e:
+            errors.append(f"csv:{e}")
+    if points is None:
+        try:
+            points = fetch_h15_treasury_spreads()["T10Y3M"]
+            src = "fed_h15_derived"
+        except Exception as e:
+            errors.append(f"h15:{e}")
+    if points is None:
+        # eco3min / local mirror via history loader
+        try:
+            monthly, tag = _load_t10y3m_history(api_key)
+            # synthesize points from monthly averages (mid-month date)
+            points = [(f"{ym}-15", v) for ym, v in sorted(monthly.items()) if ym >= start[:7]]
+            src = tag
+        except Exception as e:
+            errors.append(f"mirror:{e}")
+    if not points:
+        raise RuntimeError("T10Y3M unavailable: " + "; ".join(errors))
+    points = _validate_points("T10Y3M", points)
     got = _monthly_avg_last_complete(points)
     if not got:
         raise RuntimeError("T10Y3M: no monthly average")
     ym, spread = got
     z = NYFED_ALPHA + NYFED_BETA * spread
     value_pct = round(_norm_cdf(z) * 100.0, 4)
+    clamp_recession_pct(value_pct, "nyfed_probit")
     # horizon = data month + 12m
     y, m = int(ym[:4]), int(ym[5:7])
     m += 12
@@ -339,7 +498,7 @@ def compute_nyfed_from_fred(api_key: str | None) -> dict[str, Any]:
         "horizon_label": f"{months[m]} {y}",
         "spread_pp": round(spread, 5),
         "updated_on_source": None,
-        "fetch_method": "nyfed_probit_t10y3m",
+        "fetch_method": f"nyfed_probit_t10y3m:{src}",
         "fred_spread_id": "T10Y3M",
         "parameters": {"alpha": NYFED_ALPHA, "beta": NYFED_BETA},
     }
@@ -348,29 +507,55 @@ def compute_nyfed_from_fred(api_key: str | None) -> dict[str, Any]:
 def fetch_ny_fed_prob(api_key: str | None) -> dict[str, Any]:
     """
     Primary public model: NY Fed 12-month-ahead recession probability from 10y−3m spread.
-    Prefer official PDF print; fall back to same published formula on FRED T10Y3M.
+    Prefer official PDF print; fall back to same published formula on FRED/mirror T10Y3M.
+    PDF alone is enough when FRED is in maintenance.
     """
-    computed = compute_nyfed_from_fred(api_key)
-    pdf = parse_nyfed_pdf()
-    chosen = computed
-    if pdf and abs(pdf["value_pct"] - computed["value_pct"]) < 0.5:
-        # Trust PDF when it matches the model within rounding/noise
+    computed = None
+    computed_err = None
+    try:
+        computed = compute_nyfed_from_fred(api_key)
+        clamp_recession_pct(computed["value_pct"], "nyfed_probit")
+    except Exception as e:
+        computed_err = str(e)
+        print(f"  NY Fed probit/FRED unavailable: {e}", file=sys.stderr)
+
+    pdf = None
+    try:
+        pdf = parse_nyfed_pdf()
+    except Exception as e:
+        print(f"  NY Fed PDF parse error: {e}", file=sys.stderr)
+
+    if pdf is None and computed is None:
+        raise RuntimeError(
+            "ny_fed_prob unavailable "
+            f"(probit={computed_err!r}, pdf=None)"
+        )
+
+    if pdf and computed:
         chosen = {**computed, **{k: v for k, v in pdf.items() if v is not None}}
-        chosen["fetch_method"] = "nyfed_pdf+probit_check"
         chosen["probit_crosscheck_pct"] = computed["value_pct"]
+        if abs(pdf["value_pct"] - computed["value_pct"]) < 0.5:
+            chosen["fetch_method"] = "nyfed_pdf+probit_check"
+        else:
+            chosen["fetch_method"] = "nyfed_pdf"
+            chosen["note_divergence"] = True
     elif pdf:
-        # PDF available but diverges — still prefer PDF printed official chart
-        chosen = {**computed, **{k: v for k, v in pdf.items() if v is not None}}
-        chosen["fetch_method"] = "nyfed_pdf"
-        chosen["probit_crosscheck_pct"] = computed["value_pct"]
-        chosen["note_divergence"] = True
+        chosen = dict(pdf)
+        chosen.setdefault("fetch_method", "nyfed_pdf")
+    else:
+        chosen = dict(computed)
+
+    value_pct = clamp_recession_pct(float(chosen["value_pct"]), "ny_fed")
+    date = str(chosen.get("date") or "")
+    if not re.match(r"^\d{4}-\d{2}$", date) and not DATE_RE.match(date):
+        raise RuntimeError(f"ny_fed_prob: bad date {date!r}")
 
     out = {
         "id": "ny_fed_yield_curve",
         "primary": True,
-        "value_pct": round(float(chosen["value_pct"]), 2),
-        "value_pct_raw": float(chosen["value_pct"]),
-        "date": chosen["date"],
+        "value_pct": round(value_pct, 2),
+        "value_pct_raw": float(value_pct),
+        "date": date[:7] if len(date) >= 7 else date,
         "horizon_label": chosen.get("horizon_label"),
         "model_name": "NY Fed — Probability of US Recession Predicted by Treasury Spread (10y−3m)",
         "model_name_zh": "紐約聯儲 · 國債期限利差衰退概率（10年−3個月，12個月前瞻）",
@@ -392,20 +577,39 @@ def fetch_ny_fed_prob(api_key: str | None) -> dict[str, Any]:
 def fetch_chauvet_piger(api_key: str | None) -> dict[str, Any]:
     """Secondary: FRED RECPROUSM156N — smoothed *current* recession probability (Chauvet–Piger)."""
     start = (datetime.now(timezone.utc) - timedelta(days=800)).strftime("%Y-%m-%d")
+    points = None
+    method = "fred_csv_or_api"
+    errors: list[str] = []
     if api_key:
         try:
             points = fetch_api_series("RECPROUSM156N", api_key, start=start)
-        except Exception:
+            method = "fred_api"
+        except Exception as e:
+            errors.append(f"api:{e}")
+    if points is None:
+        try:
             points = fetch_csv_series("RECPROUSM156N", start=start)
-    else:
-        points = fetch_csv_series("RECPROUSM156N", start=start)
+            method = "fred_csv"
+        except Exception as e:
+            errors.append(f"csv:{e}")
+    if points is None:
+        local = DATA_DIR / "RECPROUSM156N.csv"
+        if local.exists():
+            pts = _load_csv_pairs(local)
+            points = _validate_points("RECPROUSM156N", pts)
+            method = "local_fred_cache"
+    if not points:
+        raise RuntimeError("RECPROUSM156N unavailable: " + "; ".join(errors))
     d, v = points[-1]
+    value_pct = clamp_recession_pct(float(v), "chauvet_piger")
+    if not DATE_RE.match(d):
+        raise RuntimeError(f"RECPROUSM156N: bad date {d!r}")
     return {
         "id": "chauvet_piger_smoothed",
         "primary": False,
-        "value_pct": round(float(v), 2),
-        "value_pct_raw": float(v),
-        "date": d[:7] if len(d) >= 7 else d,
+        "value_pct": round(value_pct, 2),
+        "value_pct_raw": float(value_pct),
+        "date": d[:7],
         "observation_date": d,
         "model_name": "Smoothed U.S. Recession Probabilities (Chauvet–Piger)",
         "model_name_zh": "平滑美國衰退概率（Chauvet–Piger，當前狀態）",
@@ -413,7 +617,7 @@ def fetch_chauvet_piger(api_key: str | None) -> dict[str, Any]:
         "fred_id": "RECPROUSM156N",
         "note_zh": "公開模型：估計「而家是否處於衰退」嘅平滑概率，唔係 12 個月前瞻。非本站預測、非投資建議。",
         "note_en": "Published nowcast-style smoothed probability (not 12m-ahead). Not this site's forecast.",
-        "fetch_method": "fred_csv_or_api",
+        "fetch_method": method,
     }
 
 
@@ -599,25 +803,7 @@ def _curl_fred_csv(series_id: str, start: str | None = None, end: str | None = N
     if r.returncode != 0 or not r.stdout:
         raise RuntimeError(f"curl {series_id} failed rc={r.returncode}")
     text = r.stdout.decode("utf-8", errors="replace")
-    if "observation_date" not in text[:80] and "DATE" not in text[:80] and series_id not in text[:120]:
-        raise RuntimeError(f"curl {series_id}: not CSV ({text[:60]!r})")
-    # write temp parse via same logic as fetch_csv
-    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
-    out: list[tuple[str, float]] = []
-    for ln in lines[1:]:
-        parts = ln.split(",")
-        if len(parts) < 2:
-            continue
-        d, v = parts[0].strip(), parts[1].strip()
-        if not v or v.upper() == ".":
-            continue
-        try:
-            out.append((d, float(v)))
-        except ValueError:
-            continue
-    if not out:
-        raise RuntimeError(f"curl {series_id}: empty")
-    return out
+    return _parse_fred_csv_text(series_id, text)
 
 
 def _load_t10y3m_history(api_key: str | None) -> tuple[dict[str, float], str]:
@@ -630,7 +816,7 @@ def _load_t10y3m_history(api_key: str | None) -> tuple[dict[str, float], str]:
         except Exception as e:
             errors.append(f"api:{e}")
     try:
-        raw = _http_get("https://eco3min.fr/dataset/yield-curve-10y-3m.csv", timeout=45)
+        raw, _ctype = _http_get("https://eco3min.fr/dataset/yield-curve-10y-3m.csv", timeout=45)
         DATA_DIR.mkdir(parents=True, exist_ok=True)
         tmp = DATA_DIR / "T10Y3M_mirror.csv"
         tmp.write_bytes(raw)
@@ -1007,27 +1193,163 @@ def compute_badge(fred: dict[str, Any], manual: dict[str, Any]) -> dict[str, Any
     }
 
 
+def _series_value_ok(series_id: str, date: str, value: float) -> bool:
+    if not DATE_RE.match(str(date)[:10] if len(str(date)) >= 10 else str(date)):
+        # allow YYYY-MM-DD only for fred series
+        if not DATE_RE.match(str(date)):
+            return False
+    lo_hi = VALUE_RANGES.get(series_id)
+    if lo_hi is None:
+        return True
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return False
+    return lo_hi[0] <= v <= lo_hi[1]
+
+
+def load_previous_payload() -> dict[str, Any] | None:
+    """Load prior docs/data.json if present and not obviously corrupt."""
+    if not OUT_PATH.exists():
+        return None
+    try:
+        prev = json.loads(OUT_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    if not isinstance(prev, dict):
+        return None
+    fred = prev.get("fred") or {}
+    # If majority of series look like HTML artifacts, treat as corrupt and ignore.
+    bad = 0
+    total = 0
+    for sid, row in fred.items():
+        if not isinstance(row, dict):
+            continue
+        total += 1
+        if not _series_value_ok(sid, str(row.get("date") or ""), row.get("value")):
+            bad += 1
+    if total and bad >= max(1, total // 2):
+        print(f"  Ignoring corrupt previous data.json ({bad}/{total} series failed sanity)", file=sys.stderr)
+        return None
+    return prev
+
+
+def fetch_h15_treasury_spreads() -> dict[str, list[tuple[str, float]]]:
+    """
+    Fed H.15 constant-maturity yields → T10Y2Y / T10Y3M when FRED is down.
+    Columns: 1m,3m,6m,1y,2y,3y,5y,7y,10y,20y,30y after Time Period.
+    """
+    import csv
+    import io
+
+    url = (
+        "https://www.federalreserve.gov/datadownload/Output.aspx?"
+        "rel=H15&series=bf17364827e38702b42a58cf8eaa3f78&lastobs=180"
+        "&from=&to=&filetype=csv&label=include&layout=seriescolumn&type=package"
+    )
+    import subprocess
+
+    text = ""
+    try:
+        raw, _ctype = _http_get(url, timeout=30)
+        text = raw.decode("utf-8", errors="replace")
+    except Exception as e_urllib:
+        r = subprocess.run(
+            ["curl", "-sL", "--max-time", "45", "-A", USER_AGENT, url],
+            capture_output=True,
+            timeout=50,
+        )
+        if r.returncode != 0 or not r.stdout:
+            raise RuntimeError(f"H.15 urllib failed ({e_urllib}); curl rc={r.returncode}") from e_urllib
+        text = r.stdout.decode("utf-8", errors="replace")
+    if _looks_like_html(text):
+        # retry once via curl even if urllib returned an HTML interstitial
+        r = subprocess.run(
+            ["curl", "-sL", "--max-time", "45", "-A", USER_AGENT, url],
+            capture_output=True,
+            timeout=50,
+        )
+        if r.returncode != 0 or not r.stdout:
+            raise RuntimeError("H.15 returned HTML")
+        text = r.stdout.decode("utf-8", errors="replace")
+        if _looks_like_html(text):
+            raise RuntimeError("H.15 returned HTML")
+    rows = list(csv.reader(io.StringIO(text)))
+    data_start = None
+    for i, r in enumerate(rows):
+        if r and r[0].strip() == "Time Period":
+            data_start = i + 1
+            break
+    if data_start is None:
+        raise RuntimeError("H.15: Time Period header not found")
+    t10y2y: list[tuple[str, float]] = []
+    t10y3m: list[tuple[str, float]] = []
+    t10yff_approx: list[tuple[str, float]] = []  # unused; DFF separate
+    for r in rows[data_start:]:
+        if len(r) < 10:
+            continue
+        d = r[0].strip()
+        if not DATE_RE.match(d):
+            continue
+        def _f(cell: str) -> float | None:
+            cell = (cell or "").strip()
+            if not cell or cell.upper() == "ND":
+                return None
+            try:
+                return float(cell)
+            except ValueError:
+                return None
+        y2, y3m, y10 = _f(r[5]), _f(r[2]), _f(r[9])
+        if y10 is not None and y2 is not None:
+            t10y2y.append((d, round(y10 - y2, 4)))
+        if y10 is not None and y3m is not None:
+            t10y3m.append((d, round(y10 - y3m, 4)))
+    if not t10y2y:
+        raise RuntimeError("H.15: no T10Y2Y points")
+    return {"T10Y2Y": t10y2y, "T10Y3M": t10y3m}
+
+
 def fetch_one(series_id: str, meta: dict[str, Any], api_key: str | None) -> dict[str, Any]:
     start = start_for(meta["lookback_days"])
-    points: list[tuple[str, float]]
-    source: str
+    points: list[tuple[str, float]] | None = None
+    source: str = "unknown"
+    errors: list[str] = []
+
     if api_key:
         try:
             points = fetch_api_series(series_id, api_key, start=start)
             source = "fred_api"
         except Exception as e:
-            print(f"  API failed for {series_id} ({e}); falling back to CSV", file=sys.stderr)
+            errors.append(f"api:{e}")
+            print(f"  API failed for {series_id} ({e}); trying CSV", file=sys.stderr)
+
+    if points is None:
+        try:
             points = fetch_csv_series(series_id, start=start)
-            source = "fred_csv_fallback"
-    else:
-        points = fetch_csv_series(series_id, start=start)
-        source = "fred_csv"
+            source = "fred_csv" if not api_key else "fred_csv_fallback"
+        except Exception as e:
+            errors.append(f"csv:{e}")
+
+    # Fed H.15 fallback for 2s10s when FRED graph/API are in maintenance
+    if points is None and series_id == "T10Y2Y":
+        try:
+            points = fetch_h15_treasury_spreads()["T10Y2Y"]
+            source = "fed_h15_derived"
+        except Exception as e:
+            errors.append(f"h15:{e}")
+
+    if not points:
+        raise RuntimeError(f"{series_id}: fetch failed — " + " | ".join(errors))
+
+    points = _validate_points(series_id, points)
 
     # Keep only lookback window
     cutoff = (datetime.now(timezone.utc) - timedelta(days=meta["lookback_days"])).strftime("%Y-%m-%d")
     points = [(d, v) for d, v in points if d >= cutoff] or points[-60:]
 
     latest_d, latest_v = points[-1]
+    if not _series_value_ok(series_id, latest_d, latest_v):
+        raise RuntimeError(f"{series_id}: latest observation failed sanity ({latest_d}, {latest_v})")
     return {
         "id": series_id,
         "label_zh": meta["label_zh"],
@@ -1049,8 +1371,12 @@ def main() -> int:
     mode = "api+csv_fallback" if api_key else "csv_keyless"
     print(f"Fetch mode: {mode}")
 
+    previous = load_previous_payload()
+    prev_fred = (previous or {}).get("fred") or {}
+
     fred: dict[str, Any] = {}
     errors: list[str] = []
+    kept_previous: list[str] = []
     for sid, meta in SERIES.items():
         print(f"Fetching {sid}...")
         try:
@@ -1060,6 +1386,20 @@ def main() -> int:
             msg = f"{sid}: {e}"
             print(f"  ERROR {msg}", file=sys.stderr)
             errors.append(msg)
+            prev_row = prev_fred.get(sid)
+            if (
+                isinstance(prev_row, dict)
+                and _series_value_ok(sid, str(prev_row.get("date") or ""), prev_row.get("value"))
+            ):
+                kept = dict(prev_row)
+                kept["source"] = f"previous_good:{(prev_row.get('source') or 'unknown')}"
+                kept["stale"] = True
+                fred[sid] = kept
+                kept_previous.append(sid)
+                print(
+                    f"  → kept previous good {kept.get('value_fmt')} @ {kept.get('date')} [previous_good]",
+                    file=sys.stderr,
+                )
 
     manual = load_manual()
     badge = compute_badge(fred, manual)
@@ -1076,6 +1416,18 @@ def main() -> int:
         "site_risk": site_risk,
     }
 
+    prev_models = ((previous or {}).get("public_probs") or {}).get("models") or []
+
+    def _prev_model(mid: str) -> dict[str, Any] | None:
+        for m in prev_models:
+            if isinstance(m, dict) and m.get("id") == mid:
+                try:
+                    clamp_recession_pct(float(m.get("value_pct")), mid)
+                except Exception:
+                    return None
+                return m
+        return None
+
     print("Fetching NY Fed recession probability...")
     try:
         ny = fetch_ny_fed_prob(api_key)
@@ -1085,6 +1437,13 @@ def main() -> int:
         msg = f"ny_fed_prob: {e}"
         print(f"  ERROR {msg}", file=sys.stderr)
         errors.append(msg)
+        prev_ny = _prev_model("ny_fed_yield_curve")
+        if prev_ny:
+            kept = dict(prev_ny)
+            kept["fetch_method"] = f"previous_good:{(prev_ny.get('fetch_method') or 'unknown')}"
+            kept["stale"] = True
+            public_models.append(kept)
+            print(f"  → kept previous NY Fed {kept.get('value_pct')}% @ {kept.get('date')}", file=sys.stderr)
 
     print("Fetching Chauvet–Piger (RECPROUSM156N)...")
     try:
@@ -1095,6 +1454,13 @@ def main() -> int:
         msg = f"RECPROUSM156N: {e}"
         print(f"  ERROR {msg}", file=sys.stderr)
         errors.append(msg)
+        prev_cp = _prev_model("chauvet_piger_smoothed")
+        if prev_cp:
+            kept = dict(prev_cp)
+            kept["fetch_method"] = f"previous_good:{(prev_cp.get('fetch_method') or 'unknown')}"
+            kept["stale"] = True
+            public_models.append(kept)
+            print(f"  → kept previous Chauvet–Piger {kept.get('value_pct')}% @ {kept.get('date')}", file=sys.stderr)
 
     public_probs["models"] = public_models
     primary = next((m for m in public_models if m.get("primary")), public_models[0] if public_models else None)
@@ -1140,14 +1506,29 @@ def main() -> int:
         "disclaimer_en": "For reference only. Not investment advice. Public recession probs are published models, not this site's forecast.",
     }
 
+    # Final sanity gate — never persist HTML-parse artifacts (e.g. 400% probs).
+    for sid, row in fred.items():
+        if not _series_value_ok(sid, str(row.get("date") or ""), row.get("value")):
+            raise RuntimeError(f"refusing to write corrupt series {sid}: {row.get('date')!r}={row.get('value')!r}")
+    for m in public_models:
+        clamp_recession_pct(float(m["value_pct"]), m.get("id") or "model")
+        d = str(m.get("date") or "")
+        if not (DATE_RE.match(d) or _re_ym.match(d)):
+            raise RuntimeError(f"refusing to write model {m.get('id')} with bad date {d!r}")
+
+    payload["kept_previous_series"] = kept_previous
+    public_probs["models"] = public_models
+
     OUT_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     PUBLIC_PROBS_PATH.write_text(json.dumps(public_probs, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(
         f"Wrote {OUT_PATH} + {PUBLIC_PROBS_PATH} "
         f"(badge={badge['status']}, site_risk={site_risk['value_pct']}%, "
-        f"series={len(fred)}, public_models={len(public_models)}, errors={len(errors)})"
+        f"series={len(fred)}, public_models={len(public_models)}, "
+        f"kept_previous={len(kept_previous)}, errors={len(errors)})"
     )
-    return 0 if fred else 1
+    # Success if we have usable series OR public models; partial FRED outage is OK.
+    return 0 if (fred or public_models) else 1
 
 
 if __name__ == "__main__":
