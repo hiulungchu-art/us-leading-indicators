@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-29 02:36 HKT",
-  "generated_at_utc": "2026-10-28T18:36:22Z",
+  "generated_at": "2026-10-30 02:45 HKT",
+  "generated_at_utc": "2026-10-29T18:45:21Z",
   "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
   "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
   "models": [
@@ -65,7 +65,7 @@
         "name": "2s10s",
         "vote": 1,
         "risk_contrib": 0.0,
-        "detail": "+0.29 pp 正斜率"
+        "detail": "+0.38 pp 正斜率"
       },
       {
         "name": "ISM PMI",
@@ -77,19 +77,19 @@
         "name": "失業救濟",
         "vote": 1,
         "risk_contrib": 0.0,
-        "detail": "197,750 低位穩定"
+        "detail": "196,750 低位穩定"
       },
       {
         "name": "HY OAS",
         "vote": 0,
         "risk_contrib": 50.0,
-        "detail": "3.18% 中性"
+        "detail": "3.14% 中性"
       },
       {
         "name": "標普500",
         "vote": 1,
         "risk_contrib": 0.0,
-        "detail": "相對近期 +3.2%"
+        "detail": "相對近期 +3.5%"
       }
     ],
     "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、未做歷史股災回測，唔係投資建議。",
