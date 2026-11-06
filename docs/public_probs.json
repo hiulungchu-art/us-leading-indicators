@@ -1,23 +1,23 @@
 {
-  "generated_at": "2026-11-06 04:26 HKT",
-  "generated_at_utc": "2026-11-05T20:26:31Z",
+  "generated_at": "2026-11-07 03:47 HKT",
+  "generated_at_utc": "2026-11-06T19:47:56Z",
   "disclaimer_zh": "公開模型數值，非本站預測、非投資建議。",
   "disclaimer_en": "Published model figures — not this site's forecast. Not investment advice.",
   "models": [
     {
       "id": "ny_fed_yield_curve",
       "primary": true,
-      "value_pct": 12.76,
-      "value_pct_raw": 12.7587,
-      "date": "2026-09",
-      "horizon_label": "Sep 2027",
+      "value_pct": 12.42,
+      "value_pct_raw": 12.4158,
+      "date": "2026-10",
+      "horizon_label": "Oct 2027",
       "model_name": "NY Fed — Probability of US Recession Predicted by Treasury Spread (10y−3m)",
       "model_name_zh": "紐約聯儲 · 國債期限利差衰退概率（10年−3個月，12個月前瞻）",
       "source_url": "https://www.newyorkfed.org/research/capital_markets/ycfaq",
       "chart_pdf_url": "https://www.newyorkfed.org/medialibrary/media/research/capital_markets/Prob_Rec.pdf",
       "fred_related_url": "https://fred.stlouisfed.org/series/T10Y3M",
-      "updated_on_source": "2026-10-04",
-      "spread_pp": 0.95509,
+      "updated_on_source": "2026-11-05",
+      "spread_pp": 0.98128,
       "fetch_method": "nyfed_pdf",
       "parameters": {
         "alpha": -0.5333,
@@ -65,7 +65,7 @@
         "name": "2s10s",
         "vote": 1,
         "risk_contrib": 0.0,
-        "detail": "+0.32 pp 正斜率"
+        "detail": "+0.38 pp 正斜率"
       },
       {
         "name": "ISM PMI",
@@ -83,13 +83,13 @@
         "name": "HY OAS",
         "vote": -1,
         "risk_contrib": 100.0,
-        "detail": "3.32%（走闊）"
+        "detail": "3.48%（走闊）"
       },
       {
         "name": "標普500",
         "vote": 0,
         "risk_contrib": 50.0,
-        "detail": "相對近期 +1.5%"
+        "detail": "相對近期 -2.9%"
       }
     ],
     "note_zh": "由本頁同一套領先指標投票映射而成，唔係概率校準、未做歷史股災回測，唔係投資建議。",
@@ -120,15 +120,15 @@
         "label_zh": "而家",
         "label_en": "Now",
         "role": "current",
-        "target_ym": "2026-09",
+        "target_ym": "2026-10",
         "context_zh": "最新公開模型讀數",
         "show_in_main_table": true,
         "ny_fed": {
           "available": true,
-          "value_pct": 12.76,
-          "value_pct_raw": 12.7587,
-          "obs_ym": "2026-09",
-          "spread_pp": 0.95509,
+          "value_pct": 12.42,
+          "value_pct_raw": 12.4158,
+          "obs_ym": "2026-10",
+          "spread_pp": 0.98128,
           "method": "nyfed_pdf",
           "source_note": "Official NY Fed chart / same published α/β"
         },
